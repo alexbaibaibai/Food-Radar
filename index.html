@@ -30,36 +30,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: url("da
 .orb1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,107,53,0.12), transparent 70%); top: -200px; right: -100px; }
 .orb2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,201,167,0.08), transparent 70%); bottom: -100px; left: -100px; }
 
-/* SETUP SCREEN */
-#setup-screen {
-  position: fixed; inset: 0; background: var(--bg); z-index: 1000;
-  display: flex; align-items: center; justify-content: center; padding: 24px;
-}
-.setup-box {
-  background: var(--card); border: 1px solid var(--border2);
-  border-radius: 24px; padding: 40px; max-width: 480px; width: 100%;
-}
-.setup-logo { font-family: 'DM Serif Display', serif; font-size: 32px; margin-bottom: 8px; }
-.setup-logo span { color: var(--accent); font-style: italic; }
-.setup-sub { font-size: 13px; color: var(--text3); margin-bottom: 32px; }
-.setup-label { font-size: 12px; color: var(--text2); margin-bottom: 8px; letter-spacing: .04em; }
-.setup-input {
-  width: 100%; background: var(--bg3); border: 1px solid var(--border);
-  border-radius: 10px; padding: 12px 16px; font-size: 14px;
-  color: var(--text); font-family: 'Noto Sans TC', sans-serif;
-  outline: none; transition: border-color .2s; margin-bottom: 8px;
-}
-.setup-input:focus { border-color: rgba(255,107,53,0.5); }
-.setup-hint { font-size: 11px; color: var(--text3); margin-bottom: 24px; line-height: 1.6; }
-.setup-hint a { color: var(--accent); text-decoration: none; }
-.setup-btn {
-  width: 100%; background: var(--accent); color: #fff; border: none;
-  padding: 13px; border-radius: 10px; font-size: 14px; font-weight: 500;
-  font-family: 'Noto Sans TC', sans-serif; cursor: pointer; transition: all .2s;
-}
-.setup-btn:hover { background: #ff8556; }
-.setup-err { font-size: 12px; color: #ff6b6b; margin-top: 8px; display: none; }
-
 /* HEADER */
 header { position: sticky; top: 0; z-index: 100; background: rgba(13,13,15,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 24px; }
 .header-inner { max-width: 900px; margin: 0 auto; height: 60px; display: flex; align-items: center; justify-content: space-between; }
@@ -209,24 +179,8 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(13,13,15,0.85)
 <div class="glow-orb orb1"></div>
 <div class="glow-orb orb2"></div>
 
-<!-- SETUP SCREEN -->
-<div id="setup-screen">
-  <div class="setup-box">
-    <div class="setup-logo">美食<span>雷達</span></div>
-    <div class="setup-sub">輸入你的 Google Maps API Key 開始使用</div>
-    <div class="setup-label">API KEY</div>
-    <input type="text" class="setup-input" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off" spellcheck="false">
-    <div class="setup-hint">
-      Key 只存在你的瀏覽器本機，不會上傳任何伺服器。<br>
-      還沒有 Key？<a href="https://console.cloud.google.com/apis/credentials" target="_blank">前往 Google Cloud Console 申請</a>
-    </div>
-    <button class="setup-btn" onclick="startApp()">開始使用 →</button>
-    <div class="setup-err" id="setupErr">Key 格式不正確，請確認是否完整複製</div>
-  </div>
-</div>
-
 <!-- MAIN APP -->
-<div id="main-app" style="display:none">
+<div id="main-app">
   <header>
     <div class="header-inner">
       <div class="logo">美食<span>雷達</span><div class="logo-sub">FOOD RADAR</div></div>
@@ -342,7 +296,7 @@ const EMOJIS = {
   restaurant: '🍽', cafe: '☕', bar: '🥃', bakery: '🥐'
 };
 
-let API_KEY = '';
+const API_KEY = 'AIzaSyAQ0QASgyiJ_jLUCi9wCb3E4ADonC3FGys';
 let map = null;
 let markers = [];
 let userLat = null, userLng = null;
@@ -351,24 +305,10 @@ let currentRadius = 1000;
 let allPlaces = [];
 let placesService = null;
 
-// ── SETUP ──
-function startApp() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  if (!key.startsWith('AIza') || key.length < 30) {
-    document.getElementById('setupErr').style.display = 'block';
-    return;
-  }
-  API_KEY = key;
-  localStorage.setItem('fr_key', key);
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('main-app').style.display = 'block';
-  loadGoogleMaps();
-}
-
 // ── LOAD MAPS SDK ──
 function loadGoogleMaps() {
   const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&language=zh-TW&callback=onMapsReady`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=places&language=zh-TW&callback=onMapsReady`;
   script.async = true;
   script.onerror = () => showToast('❌ API Key 無效，請確認是否正確');
   document.head.appendChild(script);
@@ -719,11 +659,7 @@ function setSort(type, el) {
 }
 
 // ── INIT ──
-const saved = localStorage.getItem('fr_key');
-if (saved) {
-  document.getElementById('apiKeyInput').value = saved;
-  startApp();
-}
+loadGoogleMaps();
 </script>
 </body>
 </html>
