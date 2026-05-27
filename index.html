@@ -798,10 +798,34 @@ function updateMapMarkers(places) {
 }
 
 // ── PLACE DETAIL ──
+function openDetailFromPlace(place) {
+    const priceMap = {0:'免費',1:'$ 平價',2:'$$ 中等',3:'$$$ 較貴',4:'$$$$ 高級'};
+    const price = (place.price_level != null && place.price_level !== undefined) ? (priceMap[place.price_level] ?? '—') : '無資料';
+    const hours = place.opening_hours?.weekday_text?.join('<br>') || '—';
+    currentPlaceDetail = place;
+    const isFaved = favorites.some(f => f.id === place.place_id);
+    document.getElementById('favBtn').textContent = isFaved ? '❤️' : '🤍';
+    document.getElementById('mName').textContent = place.name;
+    document.getElementById('mType').textContent = place.types?.[0]?.replace(/_/g, ' ') || '';
+    document.getElementById('mContent').innerHTML = `
+      <div class="modal-row"><span class="modal-icon">⭐</span><span class="modal-val">${place.rating || '—'} 分（${(place.user_ratings_total || 0).toLocaleString()} 則評論）</span></div>
+      <div class="modal-row"><span class="modal-icon">💰</span><span class="modal-val">價位：${price}</span></div>
+      <div class="modal-row"><span class="modal-icon">📍</span><span class="modal-val">${place.formatted_address || '—'}</span></div>
+      ${place.formatted_phone_number ? `<div class="modal-row" style="cursor:pointer" onclick="window.location.href='tel:${place.formatted_phone_number.replace(/\s/g,'')}'"><span class="modal-icon">📞</span><a class="modal-val" style="color:var(--teal);text-decoration:none;font-weight:500">${place.formatted_phone_number}</a><span style="color:var(--teal);font-size:12px;margin-left:auto;flex-shrink:0">點擊撥號 →</span></div>` : ''}
+      <div class="modal-row"><span class="modal-icon">🕐</span><span class="modal-val" style="font-size:12px;line-height:1.8">${hours}</span></div>
+      ${place.url ? `<div class="modal-row"><span class="modal-icon">🗺</span><a class="modal-link modal-val" href="${place.url}" target="_blank">在 Google Maps 查看</a></div>` : ''}
+      ${place.website ? `<div class="modal-row"><span class="modal-icon">🌐</span><a class="modal-link modal-val" href="${place.website}" target="_blank">${place.website}</a></div>` : ''}
+      <div style="margin-top:16px">
+        <button onclick="navigateTo('${(place.formatted_address||place.name).replace(/'/g,"\'")}')" style="width:100%;background:var(--teal);color:#0d0d0f;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:500;font-family:'Noto Sans TC',sans-serif;cursor:pointer;touch-action:manipulation;">📍 導航到這裡</button>
+      </div>
+    `;
+    document.getElementById('modal').classList.add('show');
+}
+
 function openDetail(placeId) {
   placesService.getDetails({
     placeId,
-    fields: ['name', 'rating', 'user_ratings_total', 'formatted_address', 'formatted_phone_number', 'website', 'opening_hours', 'url', 'price_level', 'types'],
+    fields: ['name', 'rating', 'user_ratings_total', 'formatted_address', 'formatted_phone_number', 'website', 'opening_hours', 'url', 'price_level', 'types', 'place_id'],
     language: 'zh-TW'
   }, (place, status) => {
     if (status !== google.maps.places.PlacesServiceStatus.OK) { showToast('無法取得詳細資訊'); return; }
@@ -976,18 +1000,49 @@ function closeFavPanel() {
 function renderFavList() {
   const list = document.getElementById('favList');
   if (favorites.length === 0) {
-    list.innerHTML = '<div class="fav-empty"><div style="font-size:40px;margin-bottom:12px">🤍</div><div style="font-size:15px;color:var(--text2);margin-bottom:6px">還沒有收藏</div><div style="font-size:13px">點開店家詳情，按愛心加入收藏</div></div>';
+    list.innerHTML = '<div class="fav-empty"><div style="font-size:40px;margin-bottom:12px">🤍</div><div style="font-size:15px;color:var(--text2);margin-bottom:6px">還沒有收藏</div><div style="font-size:13px">點卡片右下角愛心即可收藏</div></div>';
     return;
   }
-  list.innerHTML = favorites.map((f,i) => `
-    <div class="fav-item">
-      <div class="fav-item-icon">${EMOJIS[currentCategory] || '🍽'}</div>
-      <div class="fav-item-body">
-        <div class="fav-item-name">${f.name}</div>
-        <div class="fav-item-meta">⭐ ${f.rating || '—'} · ${f.address || ''}</div>
+  const typeEmoji = { restaurant:'🍽', cafe:'☕', bar:'🥃', bakery:'🥐' };
+  list.innerHTML = favorites.map((f, i) => `
+    <div class="rest-card" style="margin-bottom:10px" onclick="openDetailById('${f.id}')">
+      <div class="card-inner">
+        <div class="card-img-wrap">
+          <div class="card-img-placeholder">${typeEmoji[f.type] || '🍽'}</div>
+          <div class="rank-badge">#${i + 1}</div>
+        </div>
+        <div class="card-body">
+          <div class="card-top">
+            <div>
+              <div class="card-name">${f.name}</div>
+              <div class="card-type">${f.address || ''}</div>
+            </div>
+            <div class="score-wrap">
+              <div class="stars">${renderStars(f.rating || 0)}</div>
+              <div class="score-num" style="color:var(--pink)">❤️</div>
+            </div>
+          </div>
+          <div class="card-meta" style="margin-top:8px">
+            <div class="meta-item">⭐ ${f.rating || '—'}</div>
+            <button class="card-fav-btn" onclick="event.stopPropagation();removeFav(${i})" style="margin-left:auto;font-size:13px;color:var(--text3)">移除</button>
+          </div>
+        </div>
       </div>
-      <button class="fav-remove" onclick="removeFav(${i})">✕</button>
     </div>`).join('');
+}
+
+function openDetailById(placeId) {
+  if (!placesService) { showToast('地圖尚未載入'); return; }
+  placesService.getDetails({
+    placeId,
+    fields: ['name', 'rating', 'user_ratings_total', 'formatted_address', 'formatted_phone_number', 'website', 'opening_hours', 'url', 'price_level', 'types', 'place_id'],
+    language: 'zh-TW'
+  }, (place, status) => {
+    if (status !== google.maps.places.PlacesServiceStatus.OK) { showToast('無法取得詳細資訊'); return; }
+    // Close fav panel first, then open modal
+    closeFavPanel();
+    setTimeout(() => openDetailFromPlace(place), 300);
+  });
 }
 
 function removeFav(i) {
