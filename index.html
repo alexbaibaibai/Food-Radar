@@ -378,14 +378,17 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* DETAIL MODAL */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; display: none; align-items: flex-end; justify-content: center; cursor: pointer; }
-.modal-box { cursor: default; border-radius: 24px 24px 0 0; }
-.modal-overlay.show { display: flex; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; display: flex; align-items: flex-end; justify-content: center; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal-box { cursor: default; border-radius: 24px 24px 0 0; transform: translateY(100%); transition: transform .25s cubic-bezier(.32,.72,0,1); }
+.modal-overlay.show .modal-box { transform: translateY(0); }
+/* modal show handled by opacity */
 .modal-box { background: var(--card); border: 1px solid var(--border2); border-radius: 24px 24px 0 0; width: 100%; max-width: 600px; max-height: 80vh; overflow-y: auto; padding: 24px; }
 .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
 .modal-name { font-size: 20px; font-weight: 500; }
 .modal-close { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; touch-action: manipulation; flex-shrink: 0; }
 .modal-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.modal-row[onclick]:active { background: rgba(0,201,167,0.06); border-radius: 8px; margin: 0 -8px; padding: 10px 8px; }
 .modal-row:last-child { border-bottom: none; }
 .modal-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
 .modal-val { color: var(--text2); flex: 1; line-height: 1.5; }
@@ -827,7 +830,7 @@ function openDetail(placeId) {
       <div class="modal-row"><span class="modal-icon">⭐</span><span class="modal-val">${place.rating || '—'} 分（${(place.user_ratings_total || 0).toLocaleString()} 則評論）</span></div>
       <div class="modal-row"><span class="modal-icon">💰</span><span class="modal-val">價位：${price}</span></div>
       <div class="modal-row"><span class="modal-icon">📍</span><span class="modal-val">${place.formatted_address || '—'}</span></div>
-      ${place.formatted_phone_number ? `<div class="modal-row"><span class="modal-icon">📞</span><span class="modal-val">${place.formatted_phone_number}</span></div>` : ''}
+      ${place.formatted_phone_number ? `<div class="modal-row" style="cursor:pointer" onclick="window.location.href='tel:${place.formatted_phone_number.replace(/\\s/g,'')}'"><span class="modal-icon">📞</span><a class="modal-val" style="color:var(--teal);text-decoration:none;font-weight:500">${place.formatted_phone_number}</a><span style="color:var(--teal);font-size:12px;margin-left:auto;flex-shrink:0">點擊撥號 →</span></div>` : ''}
       <div class="modal-row"><span class="modal-icon">🕐</span><span class="modal-val" style="font-size:12px;line-height:1.8">${hours}</span></div>
       ${place.url ? `<div class="modal-row"><span class="modal-icon">🗺</span><a class="modal-link modal-val" href="${place.url}" target="_blank">在 Google Maps 查看</a></div>` : ''}
       ${place.website ? `<div class="modal-row"><span class="modal-icon">🌐</span><a class="modal-link modal-val" href="${place.website}" target="_blank">${place.website}</a></div>` : ''}
