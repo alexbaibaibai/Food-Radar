@@ -501,7 +501,7 @@ const EMOJIS = {
   restaurant: '🍽', cafe: '☕', bar: '🥃', bakery: '🥐'
 };
 
-const API_KEY = 'YOUR_API_KEY_HERE';
+const API_KEY = 'AIzaSyAQ0QASgyiJ_jLUCi9wCb3E4ADonC3FGys';
 let map = null;
 let markers = [];
 let userLat = null, userLng = null;
@@ -513,7 +513,7 @@ let placesService = null;
 // ── LOAD MAPS SDK ──
 function loadGoogleMaps() {
   const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=places&language=zh-TW&callback=onMapsReady`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAQ0QASgyiJ_jLUCi9wCb3E4ADonC3FGys&libraries=places&language=zh-TW&callback=onMapsReady`;
   script.async = true;
   script.onerror = () => showToast('❌ API Key 無效，請確認是否正確');
   document.head.appendChild(script);
