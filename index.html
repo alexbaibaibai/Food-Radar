@@ -303,6 +303,14 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
   .fab-ai { display: none; } /* shown via JS */
 }
 
+/* CARD FAV BUTTON */
+.card-fav-btn {
+  background: none; border: none; font-size: 16px; cursor: pointer;
+  padding: 2px 4px; margin-left: auto; touch-action: manipulation;
+  line-height: 1; flex-shrink: 0;
+}
+.card-fav-btn:active { transform: scale(1.3); transition: transform .1s; }
+
 /* FAVORITES */
 .fav-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px; touch-action: manipulation; line-height: 1; }
 .fav-panel { position: fixed; inset: 0; z-index: 300; background: var(--bg); transform: translateX(100%); transition: transform .35s cubic-bezier(.32,.72,0,1); overflow-y: auto; }
@@ -734,6 +742,9 @@ function renderPlaces(places, keyword) {
             <div class="meta-item">📍 ${formatDist(p.geometry?.location)}</div>
             <div class="meta-item">💬 ${reviews.toLocaleString()} 則</div>
             ${isOpen === true ? '<span class="open-badge">營業中</span>' : isOpen === false ? '<span class="closed-badge">已打烊</span>' : ''}
+            <button class="card-fav-btn" id="cfav-${p.place_id}" onclick="event.stopPropagation();quickFav('${p.place_id}','${p.name.replace(/'/g,"\\'")}',${rating},'${(p.vicinity||p.formatted_address||'').replace(/'/g,"\\'")}')">
+              ${favorites.some(f => f.id === p.place_id) ? '❤️' : '🤍'}
+            </button>
           </div>
         </div>
       </div>
@@ -1029,6 +1040,26 @@ function toggleClear() {
 function bnavSwitch(tab, el) {
   document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
+}
+
+// ── QUICK FAV FROM CARD ──
+function quickFav(placeId, name, rating, address) {
+  const idx = favorites.findIndex(f => f.id === placeId);
+  const btn = document.getElementById('cfav-' + placeId);
+  if (idx >= 0) {
+    favorites.splice(idx, 1);
+    if (btn) btn.textContent = '🤍';
+    showToast('已移除收藏');
+  } else {
+    favorites.push({ id: placeId, name, type: currentCategory, rating, address });
+    if (btn) btn.textContent = '❤️';
+    showToast('✓ 已加入收藏');
+  }
+  localStorage.setItem('fr_favs', JSON.stringify(favorites));
+  // Also update modal favBtn if same place is open
+  if (currentPlaceDetail?.place_id === placeId) {
+    document.getElementById('favBtn').textContent = idx >= 0 ? '🤍' : '❤️';
+  }
 }
 
 // ── NAVIGATE ──
