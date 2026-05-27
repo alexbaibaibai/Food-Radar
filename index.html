@@ -2,7 +2,9 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>美食雷達 — AI 美食探索</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
@@ -140,6 +142,156 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(13,13,15,0.85)
 .sort-btn:hover { border-color: var(--border2); color: var(--text); }
 .sort-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255,107,53,0.08); }
 
+
+/* MOBILE OPTIMIZATIONS */
+* { -webkit-tap-highlight-color: transparent; }
+body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+
+@media (max-width: 600px) {
+  header { padding: 0 16px; }
+  .header-inner { height: 54px; }
+  .logo { font-size: 19px; }
+  .logo-sub { display: none; }
+  .loc-pill { padding: 5px 10px; font-size: 11px; }
+  .view-toggle { display: none; }
+
+  .search-wrap { padding: 20px 16px 12px; }
+  .ai-search-box textarea { height: 64px; font-size: 14px; padding: 14px 16px 8px; }
+  .search-footer { padding: 6px 12px 10px; gap: 8px; }
+  .quick-tags { gap: 4px; }
+  .qtag { font-size: 11px; padding: 5px 10px; min-height: 32px; }
+  .search-btn { padding: 10px 16px; font-size: 13px; min-height: 36px; }
+
+  .loc-bar { padding: 0 16px 12px; }
+  .loc-input-wrap { padding: 5px 6px 5px 14px; }
+  .loc-input { font-size: 13px; }
+  .loc-auto-btn { padding: 8px 12px; font-size: 12px; min-height: 36px; }
+  .loc-search-btn { padding: 8px 12px; font-size: 12px; min-height: 36px; }
+
+  .sort-bar { padding: 0 16px 12px; gap: 6px; flex-wrap: wrap; }
+  .sort-btn { padding: 7px 12px; font-size: 12px; min-height: 34px; }
+
+  .filter-bar { padding: 0 16px 14px; gap: 6px; }
+  .filter-pill { padding: 7px 12px; font-size: 12px; min-height: 34px; }
+  .radius-select { padding: 7px 10px; font-size: 12px; min-height: 34px; }
+
+  .results-area { padding: 0 16px 80px; }
+  .rest-card { border-radius: 14px; }
+  .card-img-wrap { width: 96px; }
+  .card-img-placeholder { min-height: 110px; font-size: 30px; }
+  .card-img { min-height: 110px; }
+  .card-body { padding: 12px 14px; }
+  .card-name { font-size: 14px; }
+  .card-type { font-size: 11px; }
+  .score-num { font-size: 22px; }
+  .card-desc { font-size: 12px; -webkit-line-clamp: 2; margin-bottom: 7px; }
+  .card-tags { gap: 4px; margin-bottom: 7px; }
+  .ctag { font-size: 10px; padding: 3px 8px; }
+  .card-meta { gap: 8px; }
+  .meta-item { font-size: 11px; }
+
+  .modal-box { padding: 20px 18px; border-radius: 20px 20px 0 0; }
+  .modal-name { font-size: 18px; }
+  .modal-row { font-size: 13px; padding: 10px 0; }
+
+  .ai-card { padding: 14px 16px; }
+  .ai-thinking { font-size: 13px; }
+}
+
+/* Touch-friendly tap targets */
+.rest-card { cursor: pointer; -webkit-user-select: none; user-select: none; }
+.filter-pill, .sort-btn, .qtag, .search-btn, .loc-auto-btn, .loc-search-btn {
+  -webkit-user-select: none; user-select: none;
+  touch-action: manipulation;
+}
+.rest-card:active { transform: scale(0.99); opacity: .92; transition: transform .1s, opacity .1s; }
+.filter-pill:active, .sort-btn:active { opacity: .7; transform: scale(0.97); }
+
+
+/* BOTTOM NAV */
+.bottom-nav { display: none; }
+@media (max-width: 600px) {
+  .bottom-nav {
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    background: rgba(13,13,15,0.92); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border); padding: 8px 0 env(safe-area-inset-bottom, 8px);
+  }
+  .bnav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; border: none; background: none; color: var(--text3); font-size: 10px; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; transition: color .15s; touch-action: manipulation; }
+  .bnav-btn.active { color: var(--accent); }
+  .bnav-icon { font-size: 20px; line-height: 1; }
+}
+
+/* FAB AI BUTTON */
+.fab-ai {
+  display: none;
+}
+@media (max-width: 600px) {
+  .fab-ai { display: none; } /* shown via JS */
+}
+
+/* AI CHAT PANEL */
+.ai-panel {
+  position: fixed; inset: 0; z-index: 300; background: var(--bg);
+  display: flex; flex-direction: column; transform: translateY(100%);
+  transition: transform .35s cubic-bezier(.32,.72,0,1);
+}
+.ai-panel.open { transform: translateY(0); }
+.ai-panel-header {
+  padding: 16px 20px 12px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg);
+}
+.ai-panel-title { font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.ai-panel-close { background: var(--bg3); border: none; color: var(--text2); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
+.ai-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
+.ai-msg { max-width: 85%; padding: 12px 14px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
+.ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+.ai-msg.bot { background: var(--card); border: 1px solid var(--border); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
+.ai-msg.bot em { color: var(--accent2); font-style: normal; }
+.ai-msg.typing { background: var(--card); border: 1px solid var(--border); align-self: flex-start; padding: 14px 18px; }
+.typing-dots { display: flex; gap: 4px; }
+.typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: bounce .9s infinite; }
+.typing-dots span:nth-child(2) { animation-delay: .15s; }
+.typing-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+.ai-input-row { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: var(--bg); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+.ai-text-input { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 99px; padding: 10px 16px; font-size: 14px; color: var(--text); font-family: 'Noto Sans TC', sans-serif; outline: none; }
+.ai-text-input::placeholder { color: var(--text3); }
+.ai-send-btn { background: var(--accent); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 16px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
+.ai-suggestions { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 12px; }
+.ai-sug { font-size: 12px; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--border); color: var(--text2); background: var(--card); cursor: pointer; touch-action: manipulation; white-space: nowrap; }
+.ai-sug:active { opacity: .7; }
+
+/* FAVORITES */
+.fav-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px; touch-action: manipulation; line-height: 1; }
+.fav-panel { position: fixed; inset: 0; z-index: 300; background: var(--bg); transform: translateX(100%); transition: transform .35s cubic-bezier(.32,.72,0,1); overflow-y: auto; }
+.fav-panel.open { transform: translateX(0); }
+.fav-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg); z-index: 1; }
+.fav-title { font-size: 18px; font-weight: 500; }
+.fav-close { background: var(--bg3); border: none; color: var(--text2); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.fav-list { padding: 16px; }
+.fav-empty { text-align: center; padding: 60px 20px; color: var(--text3); }
+.fav-item { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+.fav-item-icon { font-size: 28px; flex-shrink: 0; }
+.fav-item-body { flex: 1; }
+.fav-item-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.fav-item-meta { font-size: 12px; color: var(--text3); }
+.fav-remove { background: none; border: none; color: var(--text3); font-size: 18px; cursor: pointer; padding: 4px; }
+
+/* RECENT SEARCHES */
+.recent-wrap { padding: 0 16px 8px; }
+.recent-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; letter-spacing: .04em; }
+.recent-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.recent-tag { font-size: 11px; padding: 4px 10px; border-radius: 99px; background: var(--bg3); color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 5px; border: none; font-family: 'Noto Sans TC', sans-serif; touch-action: manipulation; }
+.recent-tag:active { opacity: .7; }
+.recent-x { color: var(--text3); font-size: 10px; }
+
+/* CLEAR SEARCH BTN */
+.clear-btn { background: none; border: none; color: var(--text3); font-size: 16px; cursor: pointer; padding: 0 4px; display: none; touch-action: manipulation; }
+
+/* NO MORE RESULTS */
+.no-more { text-align: center; padding: 20px; font-size: 12px; color: var(--text3); }
+
 /* EMPTY / LOADING */
 .state-box { text-align: center; padding: 60px 20px; color: var(--text3); }
 .state-icon { font-size: 44px; margin-bottom: 14px; opacity: .5; }
@@ -202,7 +354,10 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(13,13,15,0.85)
   <div class="search-wrap">
     <div class="search-label">✦ 搜尋美食</div>
     <div class="ai-search-box">
-      <textarea id="searchInput" placeholder="輸入關鍵字或描述需求，例如：安靜咖啡廳、約會餐廳、宵夜..." onkeydown="handleKey(event)"></textarea>
+      <div style="position:relative;display:flex;align-items:flex-start">
+      <textarea id="searchInput" style="flex:1" placeholder="輸入關鍵字或描述需求，例如：安靜咖啡廳、約會餐廳、宵夜..." onkeydown="handleKey(event)" oninput="toggleClear()"></textarea>
+      <button class="clear-btn" id="clearBtn" onclick="clearSearch()" style="position:absolute;right:12px;top:14px">✕</button>
+      </div>
       <div class="search-footer">
         <div class="quick-tags">
           <button class="qtag" onclick="fillSearch('咖啡廳')">☕ 咖啡廳</button>
@@ -234,11 +389,16 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(13,13,15,0.85)
     <button class="sort-btn" id="sortRating" onclick="setSort('rating',this)">★ 星級高→低</button>
     <button class="sort-btn" id="sortDist" onclick="setSort('dist',this)">📍 距離近→遠</button>
   </div>
+
+  <div class="recent-wrap" id="recentWrap" style="display:none">
+    <div class="recent-label">最近搜尋</div>
+    <div class="recent-tags" id="recentTags"></div>
+  </div>
   <div class="filter-bar">
-    <button class="filter-pill active" onclick="setCategory(this,'restaurant')"><div class="filter-dot" style="background:var(--accent)"></div>餐廳</button>
-    <button class="filter-pill" onclick="setCategory(this,'cafe')"><div class="filter-dot" style="background:var(--accent2)"></div>咖啡廳</button>
-    <button class="filter-pill" onclick="setCategory(this,'bar')"><div class="filter-dot" style="background:var(--teal)"></div>酒吧</button>
-    <button class="filter-pill" onclick="setCategory(this,'bakery')"><div class="filter-dot" style="background:var(--pink)"></div>烘焙甜點</button>
+    <button class="filter-pill active" onclick="setCategory(this,'restaurant')" data-cat="restaurant"><div class="filter-dot" style="background:var(--accent)"></div>餐廳</button>
+    <button class="filter-pill" onclick="setCategory(this,'cafe')" data-cat="cafe"><div class="filter-dot" style="background:var(--accent2)"></div>咖啡廳</button>
+    <button class="filter-pill" onclick="setCategory(this,'bar')" data-cat="bar"><div class="filter-dot" style="background:var(--teal)"></div>酒吧</button>
+    <button class="filter-pill" onclick="setCategory(this,'bakery')" data-cat="bakery"><div class="filter-dot" style="background:var(--pink)"></div>烘焙甜點</button>
     <select class="radius-select" id="radiusSelect" onchange="changeRadius()">
       <option value="500">500m</option>
       <option value="1000" selected>1km</option>
@@ -274,10 +434,55 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(13,13,15,0.85)
         <div class="modal-name" id="mName"></div>
         <div style="font-size:12px;color:var(--text3);margin-top:3px" id="mType"></div>
       </div>
-      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('show')">✕</button>
+      <div style="display:flex;gap:8px;align-items:center"><button class="fav-btn" id="favBtn" onclick="toggleFav()">🤍</button><button class="modal-close" onclick="document.getElementById('modal').classList.remove('show')">✕</button></div>
     </div>
     <div id="mContent"></div>
   </div>
+</div>
+
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bnav-btn active" id="bnav-home" onclick="bnavSwitch('home',this)">
+    <span class="bnav-icon">🍽</span>探索
+  </button>
+  <button class="bnav-btn" id="bnav-ai" onclick="openAiPanel()">
+    <span class="bnav-icon">◈</span>AI 推薦
+  </button>
+  <button class="bnav-btn" id="bnav-fav" onclick="openFavPanel()">
+    <span class="bnav-icon">🤍</span>收藏
+  </button>
+</nav>
+
+<!-- AI PANEL -->
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-panel-header">
+    <div class="ai-panel-title">◈ <span>AI 美食顧問</span></div>
+    <button class="ai-panel-close" onclick="closeAiPanel()">✕</button>
+  </div>
+  <div class="ai-messages" id="aiMessages">
+    <div class="ai-msg bot">你好！我是你的 AI 美食顧問 🍜<br>告訴我你今天想吃什麼、什麼情境，我幫你找最適合的店。</div>
+  </div>
+  <div class="ai-suggestions" id="aiSuggestions">
+    <button class="ai-sug" onclick="aiQuick('適合約會的餐廳，要有氣氛')">🕯 約會餐廳</button>
+    <button class="ai-sug" onclick="aiQuick('安靜有插座的咖啡廳，適合工作')">☕ 工作咖啡</button>
+    <button class="ai-sug" onclick="aiQuick('深夜宵夜，CP值高')">🌙 深夜宵夜</button>
+    <button class="ai-sug" onclick="aiQuick('朋友聚餐，熱鬧氣氛')">🎉 朋友聚餐</button>
+    <button class="ai-sug" onclick="aiQuick('網美打卡，拍照好看')">📸 網美餐廳</button>
+  </div>
+  <div class="ai-input-row">
+    <input type="text" class="ai-text-input" id="aiTextInput" placeholder="描述你的需求..." onkeydown="if(event.key==='Enter')sendAiMsg()">
+    <button class="ai-send-btn" onclick="sendAiMsg()">→</button>
+  </div>
+</div>
+
+<!-- FAVORITES PANEL -->
+<div class="fav-panel" id="favPanel">
+  <div class="fav-header">
+    <div class="fav-title">🤍 我的收藏</div>
+    <button class="fav-close" onclick="closeFavPanel()">✕</button>
+  </div>
+  <div class="fav-list" id="favList"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -296,7 +501,7 @@ const EMOJIS = {
   restaurant: '🍽', cafe: '☕', bar: '🥃', bakery: '🥐'
 };
 
-const API_KEY = 'AIzaSyAQ0QASgyiJ_jLUCi9wCb3E4ADonC3FGys';
+const API_KEY = 'YOUR_API_KEY_HERE';
 let map = null;
 let markers = [];
 let userLat = null, userLng = null;
@@ -308,7 +513,7 @@ let placesService = null;
 // ── LOAD MAPS SDK ──
 function loadGoogleMaps() {
   const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAQ0QASgyiJ_jLUCi9wCb3E4ADonC3FGys&libraries=places&language=zh-TW&callback=onMapsReady`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=places&language=zh-TW&callback=onMapsReady`;
   script.async = true;
   script.onerror = () => showToast('❌ API Key 無效，請確認是否正確');
   document.head.appendChild(script);
@@ -479,7 +684,7 @@ function renderPlaces(places, keyword) {
         </div>
       </div>
     </div>`;
-  }).join('');
+  }).join('') + (sorted.length > 0 ? `<div class='no-more'>— 已顯示全部 ${sorted.length} 間 —</div>` : '');
 }
 
 function renderStars(rating) {
@@ -538,6 +743,9 @@ function openDetail(placeId) {
     const priceMap = {0:'免費',1:'$ 平價',2:'$$ 中等',3:'$$$ 較貴',4:'$$$$ 高級'};
     const price = (place.price_level != null && place.price_level !== undefined) ? (priceMap[place.price_level] ?? '—') : '無資料';
     const hours = place.opening_hours?.weekday_text?.join('<br>') || '—';
+    currentPlaceDetail = place;
+    const isFaved = favorites.some(f => f.id === place.place_id);
+    document.getElementById('favBtn').textContent = isFaved ? '❤️' : '🤍';
     document.getElementById('mContent').innerHTML = `
       <div class="modal-row"><span class="modal-icon">⭐</span><span class="modal-val">${place.rating || '—'} 分（${(place.user_ratings_total || 0).toLocaleString()} 則評論）</span></div>
       <div class="modal-row"><span class="modal-icon">💰</span><span class="modal-val">價位：${price}</span></div>
@@ -546,6 +754,9 @@ function openDetail(placeId) {
       <div class="modal-row"><span class="modal-icon">🕐</span><span class="modal-val" style="font-size:12px;line-height:1.8">${hours}</span></div>
       ${place.url ? `<div class="modal-row"><span class="modal-icon">🗺</span><a class="modal-link modal-val" href="${place.url}" target="_blank">在 Google Maps 查看</a></div>` : ''}
       ${place.website ? `<div class="modal-row"><span class="modal-icon">🌐</span><a class="modal-link modal-val" href="${place.website}" target="_blank">${place.website}</a></div>` : ''}
+      <div style="margin-top:16px">
+        <button onclick="navigateTo(${(place.formatted_address||place.name).replace(/'/g,"\'")})" style="width:100%;background:var(--teal);color:#0d0d0f;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:500;font-family:'Noto Sans TC',sans-serif;cursor:pointer;touch-action:manipulation;">📍 導航到這裡</button>
+      </div>
     `;
     document.getElementById('modal').classList.add('show');
   });
@@ -558,6 +769,7 @@ function closeModal(e) {
 // ── SEARCH ──
 function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
+  if (q) saveRecent(q);
   fetchNearby(currentCategory, q);
 }
 function fillSearch(t) { document.getElementById('searchInput').value = t; doSearch(); }
@@ -658,8 +870,198 @@ function setSort(type, el) {
   if (allPlaces.length > 0) renderPlaces(allPlaces, '');
 }
 
+
+// ── FAVORITES ──
+let favorites = JSON.parse(localStorage.getItem('fr_favs') || '[]');
+let currentPlaceDetail = null;
+
+function toggleFav() {
+  if (!currentPlaceDetail) return;
+  const p = currentPlaceDetail;
+  const idx = favorites.findIndex(f => f.id === p.place_id);
+  if (idx >= 0) {
+    favorites.splice(idx, 1);
+    document.getElementById('favBtn').textContent = '🤍';
+    showToast('已移除收藏');
+  } else {
+    favorites.push({ id: p.place_id, name: p.name, type: p.types?.[0] || '', rating: p.rating, address: p.formatted_address });
+    document.getElementById('favBtn').textContent = '❤️';
+    showToast('✓ 已加入收藏');
+  }
+  localStorage.setItem('fr_favs', JSON.stringify(favorites));
+  renderFavList();
+}
+
+function openFavPanel() {
+  renderFavList();
+  document.getElementById('favPanel').classList.add('open');
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('bnav-fav').classList.add('active');
+}
+function closeFavPanel() {
+  document.getElementById('favPanel').classList.remove('open');
+  document.getElementById('bnav-home').classList.add('active');
+  document.getElementById('bnav-fav').classList.remove('active');
+}
+
+function renderFavList() {
+  const list = document.getElementById('favList');
+  if (favorites.length === 0) {
+    list.innerHTML = '<div class="fav-empty"><div style="font-size:40px;margin-bottom:12px">🤍</div><div style="font-size:15px;color:var(--text2);margin-bottom:6px">還沒有收藏</div><div style="font-size:13px">點開店家詳情，按愛心加入收藏</div></div>';
+    return;
+  }
+  list.innerHTML = favorites.map((f,i) => `
+    <div class="fav-item">
+      <div class="fav-item-icon">${EMOJIS[currentCategory] || '🍽'}</div>
+      <div class="fav-item-body">
+        <div class="fav-item-name">${f.name}</div>
+        <div class="fav-item-meta">⭐ ${f.rating || '—'} · ${f.address || ''}</div>
+      </div>
+      <button class="fav-remove" onclick="removeFav(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removeFav(i) {
+  favorites.splice(i, 1);
+  localStorage.setItem('fr_favs', JSON.stringify(favorites));
+  renderFavList();
+}
+
+// ── RECENT SEARCHES ──
+let recentSearches = JSON.parse(localStorage.getItem('fr_recent') || '[]');
+
+function saveRecent(q) {
+  if (!q) return;
+  recentSearches = [q, ...recentSearches.filter(r => r !== q)].slice(0, 6);
+  localStorage.setItem('fr_recent', JSON.stringify(recentSearches));
+  renderRecent();
+}
+
+function renderRecent() {
+  const wrap = document.getElementById('recentWrap');
+  const tags = document.getElementById('recentTags');
+  if (recentSearches.length === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  tags.innerHTML = recentSearches.map(r => `
+    <button class="recent-tag" onclick="fillSearch('${r}')">
+      🕐 ${r} <span class="recent-x" onclick="removeRecent(event,'${r}')">✕</span>
+    </button>`).join('');
+}
+
+function removeRecent(e, r) {
+  e.stopPropagation();
+  recentSearches = recentSearches.filter(x => x !== r);
+  localStorage.setItem('fr_recent', JSON.stringify(recentSearches));
+  renderRecent();
+}
+
+// ── CLEAR SEARCH ──
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('clearBtn').style.display = 'none';
+  document.getElementById('aiCard').style.display = 'none';
+  fetchNearby(currentCategory);
+}
+function toggleClear() {
+  const val = document.getElementById('searchInput').value;
+  document.getElementById('clearBtn').style.display = val ? 'block' : 'none';
+}
+
+// ── BOTTOM NAV ──
+function bnavSwitch(tab, el) {
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── AI PANEL ──
+function openAiPanel() {
+  document.getElementById('aiPanel').classList.add('open');
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('bnav-ai').classList.add('active');
+  setTimeout(() => document.getElementById('aiTextInput').focus(), 400);
+}
+function closeAiPanel() {
+  document.getElementById('aiPanel').classList.remove('open');
+  document.getElementById('bnav-home').classList.add('active');
+  document.getElementById('bnav-ai').classList.remove('active');
+}
+
+function aiQuick(msg) {
+  document.getElementById('aiTextInput').value = msg;
+  sendAiMsg();
+}
+
+function sendAiMsg() {
+  const input = document.getElementById('aiTextInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  document.getElementById('aiSuggestions').style.display = 'none';
+
+  const messages = document.getElementById('aiMessages');
+  messages.innerHTML += `<div class="ai-msg user">${msg}</div>`;
+  messages.innerHTML += `<div class="ai-msg typing" id="typingDot"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  messages.scrollTop = messages.scrollHeight;
+
+  // AI logic based on keywords
+  setTimeout(() => {
+    document.getElementById('typingDot')?.remove();
+    const reply = getAiReply(msg);
+    messages.innerHTML += `<div class="ai-msg bot">${reply.text}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+
+    // Apply filter if suggested
+    if (reply.category) {
+      closeAiPanel();
+      const filterBtn = document.querySelector('.filter-pill[data-cat="' + reply.category + '"]');
+      if (filterBtn) setCategory(filterBtn, reply.category);
+      else fetchNearby(reply.category, reply.keyword || '');
+      if (reply.keyword) {
+        document.getElementById('searchInput').value = reply.keyword;
+        toggleClear();
+      }
+      document.getElementById('bnav-home').classList.add('active');
+      document.getElementById('bnav-ai').classList.remove('active');
+    }
+  }, 1400);
+}
+
+function getAiReply(msg) {
+  const q = msg.toLowerCase();
+  if (q.includes('約會') || q.includes('浪漫') || q.includes('氣氛')) {
+    return { text: '約會首選 🕯<br>我幫你找<em>高評分、氣氛好</em>的餐廳，已篩選掉熱炒、快餐等嘈雜場所，優先推薦有包廂或窗邊座位的店。<br><br>正在切換到約會餐廳模式...', category: 'restaurant', keyword: '約會' };
+  } else if (q.includes('工作') || q.includes('插座') || q.includes('安靜')) {
+    return { text: '工作咖啡廳模式 ☕<br>為你篩選<em>有插座、WiFi 穩定、環境安靜</em>的咖啡廳，適合久坐辦公。<br><br>正在切換...', category: 'cafe', keyword: '咖啡' };
+  } else if (q.includes('宵夜') || q.includes('深夜') || q.includes('晚上')) {
+    return { text: '深夜宵夜推薦 🌙<br>篩選<em>晚間營業、CP值高</em>的店家，熱炒、鹹酥雞、拉麵都是好選擇。<br><br>正在搜尋...', category: 'restaurant', keyword: '宵夜' };
+  } else if (q.includes('聚餐') || q.includes('朋友') || q.includes('熱鬧')) {
+    return { text: '朋友聚餐模式 🎉<br>優先推薦<em>評論數多、座位寬敞</em>的餐廳，代表接受度高、適合多人同行。<br><br>正在搜尋...', category: 'restaurant', keyword: '聚餐' };
+  } else if (q.includes('網美') || q.includes('打卡') || q.includes('拍照')) {
+    return { text: '網美打卡餐廳 📸<br>為你找<em>裝潢有質感、食物好看</em>的店，IG 上出現頻率高的都在這裡。<br><br>正在搜尋...', category: 'cafe', keyword: '網美' };
+  } else if (q.includes('咖啡')) {
+    return { text: '咖啡廳推薦 ☕<br>幫你找附近評分最高的咖啡廳，依推薦指數排序。', category: 'cafe', keyword: '' };
+  } else if (q.includes('甜點') || q.includes('蛋糕') || q.includes('烘焙')) {
+    return { text: '甜點推薦 🍰<br>幫你找附近高評分的甜點店和烘焙坊。', category: 'bakery', keyword: '' };
+  } else if (q.includes('酒') || q.includes('bar') || q.includes('調酒')) {
+    return { text: '酒吧推薦 🥃<br>幫你找附近評分高的酒吧，適合小酌放鬆。', category: 'bar', keyword: '' };
+  } else {
+    return { text: `收到你的需求「${msg}」🍽<br>我幫你在附近搜尋相關店家，依<em>推薦指數排序</em>呈現給你。<br><br>正在搜尋...`, category: 'restaurant', keyword: msg };
+  }
+}
+
+// ── NAVIGATE ──
+function navigateTo(address) {
+  const encoded = encodeURIComponent(address);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const url = isIOS
+    ? 'maps://maps.apple.com/?q=' + encoded
+    : 'https://www.google.com/maps/search/?api=1&query=' + encoded;
+  window.open(url, '_blank');
+}
+
 // ── INIT ──
 loadGoogleMaps();
+renderRecent();
 </script>
 </body>
 </html>
