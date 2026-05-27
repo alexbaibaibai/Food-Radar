@@ -157,6 +157,7 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(13,13,15,0.85)
 /* SORT BAR */
 .sort-bar { display: none; }
 .sort-label { display: none; }
+.filter-bar { display: none; }
 .sort-btn { padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); cursor: pointer; transition: all .15s; background: var(--card); font-family: 'Noto Sans TC', sans-serif; display: flex; align-items: center; gap: 5px; }
 .sort-btn:hover { border-color: var(--border2); color: var(--text); }
 .sort-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255,107,53,0.08); }
@@ -462,28 +463,35 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
     </div>
   </div>
 
-  <div class="sort-bar">
-    <span class="sort-label">排序：</span>
-    <button class="sort-btn active" id="sortScore" onclick="setSort('score',this)">✦ 推薦指數</button>
-    <button class="sort-btn" id="sortRating" onclick="setSort('rating',this)">★ 星級高→低</button>
-    <button class="sort-btn" id="sortDist" onclick="setSort('dist',this)">📍 距離近→遠</button>
+  <div class="control-panel">
+    <div class="control-row">
+      <span class="control-label">排序</span>
+      <div class="control-pills">
+        <button class="sort-btn active" id="sortScore" onclick="setSort('score',this)">✦ 推薦指數</button>
+        <button class="sort-btn" id="sortRating" onclick="setSort('rating',this)">★ 星級高低</button>
+        <button class="sort-btn" id="sortDist" onclick="setSort('dist',this)">📍 距離近遠</button>
+      </div>
+    </div>
+    <div class="control-row">
+      <span class="control-label">類別</span>
+      <div class="control-pills">
+        <button class="filter-pill active" onclick="setCategory(this,'restaurant')" data-cat="restaurant"><div class="filter-dot" style="background:var(--accent)"></div>餐廳</button>
+        <button class="filter-pill" onclick="setCategory(this,'cafe')" data-cat="cafe"><div class="filter-dot" style="background:var(--accent2)"></div>咖啡廳</button>
+        <button class="filter-pill" onclick="setCategory(this,'bar')" data-cat="bar"><div class="filter-dot" style="background:var(--teal)"></div>酒吧</button>
+        <button class="filter-pill" onclick="setCategory(this,'bakery')" data-cat="bakery"><div class="filter-dot" style="background:var(--pink)"></div>烘焙甜點</button>
+        <select class="radius-select" id="radiusSelect" onchange="changeRadius()">
+          <option value="500">500m</option>
+          <option value="1000" selected>1km</option>
+          <option value="2000">2km</option>
+          <option value="3000">3km</option>
+        </select>
+      </div>
+    </div>
   </div>
 
   <div class="recent-wrap" id="recentWrap" style="display:none">
     <div class="recent-label">最近搜尋</div>
     <div class="recent-tags" id="recentTags"></div>
-  </div>
-  <div class="filter-bar">
-    <button class="filter-pill active" onclick="setCategory(this,'restaurant')" data-cat="restaurant"><div class="filter-dot" style="background:var(--accent)"></div>餐廳</button>
-    <button class="filter-pill" onclick="setCategory(this,'cafe')" data-cat="cafe"><div class="filter-dot" style="background:var(--accent2)"></div>咖啡廳</button>
-    <button class="filter-pill" onclick="setCategory(this,'bar')" data-cat="bar"><div class="filter-dot" style="background:var(--teal)"></div>酒吧</button>
-    <button class="filter-pill" onclick="setCategory(this,'bakery')" data-cat="bakery"><div class="filter-dot" style="background:var(--pink)"></div>烘焙甜點</button>
-    <select class="radius-select" id="radiusSelect" onchange="changeRadius()">
-      <option value="500">500m</option>
-      <option value="1000" selected>1km</option>
-      <option value="2000">2km</option>
-      <option value="3000">3km</option>
-    </select>
   </div>
 
   <div class="results-area">
