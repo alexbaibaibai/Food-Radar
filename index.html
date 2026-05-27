@@ -404,39 +404,6 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
   .fab-ai { display: none; } /* shown via JS */
 }
 
-/* AI CHAT PANEL */
-.ai-panel {
-  position: fixed; inset: 0; z-index: 300; background: var(--bg);
-  display: flex; flex-direction: column; transform: translateY(100%);
-  transition: transform .35s cubic-bezier(.32,.72,0,1);
-}
-.ai-panel.open { transform: translateY(0); }
-.ai-panel-header {
-  padding: 16px 20px 12px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  background: var(--bg);
-}
-.ai-panel-title { font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
-.ai-panel-close { background: var(--bg3); border: none; color: var(--text2); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
-.ai-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
-.ai-msg { max-width: 85%; padding: 12px 14px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
-.ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-.ai-msg.bot { background: var(--card); border: 1px solid var(--border); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
-.ai-msg.bot em { color: var(--accent2); font-style: normal; }
-.ai-msg.typing { background: var(--card); border: 1px solid var(--border); align-self: flex-start; padding: 14px 18px; }
-.typing-dots { display: flex; gap: 4px; }
-.typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: bounce .9s infinite; }
-.typing-dots span:nth-child(2) { animation-delay: .15s; }
-.typing-dots span:nth-child(3) { animation-delay: .3s; }
-@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
-.ai-input-row { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: var(--bg); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
-.ai-text-input { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 99px; padding: 10px 16px; font-size: 14px; color: var(--text); font-family: 'Noto Sans TC', sans-serif; outline: none; }
-.ai-text-input::placeholder { color: var(--text3); }
-.ai-send-btn { background: var(--accent); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 16px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
-.ai-suggestions { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 12px; }
-.ai-sug { font-size: 12px; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--border); color: var(--text2); background: var(--card); cursor: pointer; touch-action: manipulation; white-space: nowrap; }
-.ai-sug:active { opacity: .7; }
-
 /* FAVORITES */
 .fav-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px; touch-action: manipulation; line-height: 1; }
 .fav-panel { position: fixed; inset: 0; z-index: 300; background: var(--bg); transform: translateX(100%); transition: transform .35s cubic-bezier(.32,.72,0,1); overflow-y: auto; }
@@ -600,11 +567,7 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
   </div>
 
   <div class="results-area">
-    <div class="ai-card" id="aiCard">
-      <div class="ai-header"><span>◈</span><span class="ai-title">搜尋結果</span></div>
-      <div class="ai-thinking" id="aiThinking"></div>
-      <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
-    </div>
+
     <div class="results-header">
       <div class="results-title">找到 <strong id="resultCount">0</strong> 間</div>
     </div>
@@ -639,35 +602,10 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
   <button class="bnav-btn active" id="bnav-home" onclick="bnavSwitch('home',this)">
     <span class="bnav-icon">🍽</span>探索
   </button>
-  <button class="bnav-btn" id="bnav-ai" onclick="openAiPanel()">
-    <span class="bnav-icon">◈</span>AI 推薦
-  </button>
   <button class="bnav-btn" id="bnav-fav" onclick="openFavPanel()">
     <span class="bnav-icon">🤍</span>收藏
   </button>
 </nav>
-
-<!-- AI PANEL -->
-<div class="ai-panel" id="aiPanel">
-  <div class="ai-panel-header">
-    <div class="ai-panel-title">◈ <span>AI 美食顧問</span></div>
-    <button class="ai-panel-close" onclick="closeAiPanel()">✕</button>
-  </div>
-  <div class="ai-messages" id="aiMessages">
-    <div class="ai-msg bot">你好！我是你的 AI 美食顧問 🍜<br>告訴我你今天想吃什麼、什麼情境，我幫你找最適合的店。</div>
-  </div>
-  <div class="ai-suggestions" id="aiSuggestions">
-    <button class="ai-sug" onclick="aiQuick('適合約會的餐廳，要有氣氛')">🕯 約會餐廳</button>
-    <button class="ai-sug" onclick="aiQuick('安靜有插座的咖啡廳，適合工作')">☕ 工作咖啡</button>
-    <button class="ai-sug" onclick="aiQuick('深夜宵夜，CP值高')">🌙 深夜宵夜</button>
-    <button class="ai-sug" onclick="aiQuick('朋友聚餐，熱鬧氣氛')">🎉 朋友聚餐</button>
-    <button class="ai-sug" onclick="aiQuick('網美打卡，拍照好看')">📸 網美餐廳</button>
-  </div>
-  <div class="ai-input-row">
-    <input type="text" class="ai-text-input" id="aiTextInput" placeholder="描述你的需求..." onkeydown="if(event.key==='Enter')sendAiMsg()">
-    <button class="ai-send-btn" onclick="sendAiMsg()">→</button>
-  </div>
-</div>
 
 <!-- FAVORITES PANEL -->
 <div class="fav-panel" id="favPanel">
@@ -1146,8 +1084,8 @@ function openFavPanel() {
 }
 function closeFavPanel() {
   document.getElementById('favPanel').classList.remove('open');
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('bnav-home').classList.add('active');
-  document.getElementById('bnav-fav').classList.remove('active');
 }
 
 function renderFavList() {
@@ -1220,80 +1158,8 @@ function bnavSwitch(tab, el) {
 }
 
 // ── AI PANEL ──
-function openAiPanel() {
-  document.getElementById('aiPanel').classList.add('open');
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('bnav-ai').classList.add('active');
-  setTimeout(() => document.getElementById('aiTextInput').focus(), 400);
-}
-function closeAiPanel() {
-  document.getElementById('aiPanel').classList.remove('open');
-  document.getElementById('bnav-home').classList.add('active');
-  document.getElementById('bnav-ai').classList.remove('active');
-}
 
-function aiQuick(msg) {
-  document.getElementById('aiTextInput').value = msg;
-  sendAiMsg();
-}
 
-function sendAiMsg() {
-  const input = document.getElementById('aiTextInput');
-  const msg = input.value.trim();
-  if (!msg) return;
-  input.value = '';
-  document.getElementById('aiSuggestions').style.display = 'none';
-
-  const messages = document.getElementById('aiMessages');
-  messages.innerHTML += `<div class="ai-msg user">${msg}</div>`;
-  messages.innerHTML += `<div class="ai-msg typing" id="typingDot"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
-  messages.scrollTop = messages.scrollHeight;
-
-  // AI logic based on keywords
-  setTimeout(() => {
-    document.getElementById('typingDot')?.remove();
-    const reply = getAiReply(msg);
-    messages.innerHTML += `<div class="ai-msg bot">${reply.text}</div>`;
-    messages.scrollTop = messages.scrollHeight;
-
-    // Apply filter if suggested
-    if (reply.category) {
-      closeAiPanel();
-      const filterBtn = document.querySelector('.filter-pill[data-cat="' + reply.category + '"]');
-      if (filterBtn) setCategory(filterBtn, reply.category);
-      else fetchNearby(reply.category, reply.keyword || '');
-      if (reply.keyword) {
-        document.getElementById('searchInput').value = reply.keyword;
-        toggleClear();
-      }
-      document.getElementById('bnav-home').classList.add('active');
-      document.getElementById('bnav-ai').classList.remove('active');
-    }
-  }, 1400);
-}
-
-function getAiReply(msg) {
-  const q = msg.toLowerCase();
-  if (q.includes('約會') || q.includes('浪漫') || q.includes('氣氛')) {
-    return { text: '約會首選 🕯<br>我幫你找<em>高評分、氣氛好</em>的餐廳，已篩選掉熱炒、快餐等嘈雜場所，優先推薦有包廂或窗邊座位的店。<br><br>正在切換到約會餐廳模式...', category: 'restaurant', keyword: '約會' };
-  } else if (q.includes('工作') || q.includes('插座') || q.includes('安靜')) {
-    return { text: '工作咖啡廳模式 ☕<br>為你篩選<em>有插座、WiFi 穩定、環境安靜</em>的咖啡廳，適合久坐辦公。<br><br>正在切換...', category: 'cafe', keyword: '咖啡' };
-  } else if (q.includes('宵夜') || q.includes('深夜') || q.includes('晚上')) {
-    return { text: '深夜宵夜推薦 🌙<br>篩選<em>晚間營業、CP值高</em>的店家，熱炒、鹹酥雞、拉麵都是好選擇。<br><br>正在搜尋...', category: 'restaurant', keyword: '宵夜' };
-  } else if (q.includes('聚餐') || q.includes('朋友') || q.includes('熱鬧')) {
-    return { text: '朋友聚餐模式 🎉<br>優先推薦<em>評論數多、座位寬敞</em>的餐廳，代表接受度高、適合多人同行。<br><br>正在搜尋...', category: 'restaurant', keyword: '聚餐' };
-  } else if (q.includes('網美') || q.includes('打卡') || q.includes('拍照')) {
-    return { text: '網美打卡餐廳 📸<br>為你找<em>裝潢有質感、食物好看</em>的店，IG 上出現頻率高的都在這裡。<br><br>正在搜尋...', category: 'cafe', keyword: '網美' };
-  } else if (q.includes('咖啡')) {
-    return { text: '咖啡廳推薦 ☕<br>幫你找附近評分最高的咖啡廳，依推薦指數排序。', category: 'cafe', keyword: '' };
-  } else if (q.includes('甜點') || q.includes('蛋糕') || q.includes('烘焙')) {
-    return { text: '甜點推薦 🍰<br>幫你找附近高評分的甜點店和烘焙坊。', category: 'bakery', keyword: '' };
-  } else if (q.includes('酒') || q.includes('bar') || q.includes('調酒')) {
-    return { text: '酒吧推薦 🥃<br>幫你找附近評分高的酒吧，適合小酌放鬆。', category: 'bar', keyword: '' };
-  } else {
-    return { text: `收到你的需求「${msg}」🍽<br>我幫你在附近搜尋相關店家，依<em>推薦指數排序</em>呈現給你。<br><br>正在搜尋...`, category: 'restaurant', keyword: msg };
-  }
-}
 
 // ── NAVIGATE ──
 function navigateTo(address) {
