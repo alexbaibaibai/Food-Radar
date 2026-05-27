@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
 <title>美食雷達 — AI 美食探索</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
@@ -26,7 +26,7 @@
   --radius: 16px;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; font-size: 16px; }
+body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 16px; }
 body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.4; }
 .glow-orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
 .orb1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,107,53,0.12), transparent 70%); top: -200px; right: -100px; }
@@ -169,7 +169,8 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
 
 /* ── GLOBAL MOBILE RESET ── */
 @media (max-width: 600px) {
-  html, body { overflow-x: hidden; width: 100%; }
+  html { overflow-x: clip; }
+  body { width: 100%; }
 
   header { padding: 0 14px; }
   .header-inner { height: 52px; gap: 8px; }
@@ -1197,11 +1198,18 @@ let ptrStartY = 0;
 let ptrActive = false;
 
 document.addEventListener('touchstart', e => {
-  if (window.scrollY === 0) ptrStartY = e.touches[0].clientY;
+  if (e.touches.length === 1 && window.scrollY === 0) {
+    ptrStartY = e.touches[0].clientY;
+  } else {
+    ptrStartY = 0; // disable PTR on pinch
+  }
 }, { passive: true });
 
 document.addEventListener('touchmove', e => {
-  if (!ptrStartY) return;
+  if (!ptrStartY || e.touches.length > 1) {
+    ptrStartY = 0; // cancel PTR if pinch detected mid-gesture
+    return;
+  }
   const dy = e.touches[0].clientY - ptrStartY;
   if (dy > 60 && window.scrollY === 0 && !ptrActive) {
     ptrActive = true;
