@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>美食雷達 — AI 美食探索</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
@@ -26,7 +26,7 @@
   --radius: 16px;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 16px; }
+body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; font-size: 16px; }
 body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.4; }
 .glow-orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
 .orb1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,107,53,0.12), transparent 70%); top: -200px; right: -100px; }
@@ -128,7 +128,7 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(13,13,15,0.85)
 .loc-bar { max-width: 900px; margin: 0 auto; padding: 0 24px 14px; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
 .loc-input-wrap { display: flex; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; transition: border-color .2s; }
 .loc-input-wrap:focus-within { border-color: rgba(0,201,167,0.4); }
-.loc-input { flex: 1; background: transparent; border: none; outline: none; font-size: 14px; color: var(--text); font-family: 'Noto Sans TC', sans-serif; }
+.loc-input { flex: 1; background: transparent; border: none; outline: none; font-size: 16px; color: var(--text); font-family: 'Noto Sans TC', sans-serif; }
 .loc-input::placeholder { color: var(--text3); }
 .loc-btn-row { display: flex; gap: 8px; }
 .loc-auto-btn { flex: 1; background: var(--teal); color: #0d0d0f; border: none; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 500; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; text-align: center; transition: all .2s; }
@@ -169,8 +169,7 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
 
 /* ── GLOBAL MOBILE RESET ── */
 @media (max-width: 600px) {
-  html { overflow-x: clip; }
-  body { width: 100%; }
+  html, body { overflow-x: hidden; width: 100%; }
 
   header { padding: 0 14px; }
   .header-inner { height: 52px; gap: 8px; }
@@ -182,7 +181,7 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
   /* SEARCH */
   .search-wrap { padding: 16px 14px 10px; }
   .search-label { font-size: 12px; margin-bottom: 8px; }
-  .ai-search-box textarea { height: 68px; font-size: 15px; padding: 14px 14px 8px; }
+  .ai-search-box textarea { height: 68px; font-size: 16px; padding: 14px 14px 8px; }
   .search-footer { padding: 8px 10px 12px; flex-wrap: nowrap; gap: 8px; }
   .quick-tags { gap: 5px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 2px; scrollbar-width: none; }
   .quick-tags::-webkit-scrollbar { display: none; }
@@ -262,58 +261,7 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
   .ai-msg { font-size: 13px; padding: 10px 12px; max-width: 88%; }
   .ai-text-input { font-size: 14px; padding: 9px 14px; }
 
-  
-/* SKELETON */
-.skeleton-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; overflow: hidden; }
-.skeleton-inner { display: flex; }
-.skeleton-img { width: 100px; min-height: 118px; background: var(--bg3); flex-shrink: 0; position: relative; overflow: hidden; }
-.skeleton-body { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-.skeleton-line { height: 12px; background: var(--bg3); border-radius: 6px; position: relative; overflow: hidden; }
-.skeleton-line.wide { width: 70%; }
-.skeleton-line.mid { width: 45%; }
-.skeleton-line.short { width: 30%; }
-.skeleton-img::after, .skeleton-line::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-  animation: shimmer 1.4s infinite;
-}
-@keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
-
-/* LOAD MORE */
-.load-more-btn {
-  width: 100%; padding: 14px; margin-top: 4px; margin-bottom: 16px;
-  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-  color: var(--text2); font-size: 14px; font-family: 'Noto Sans TC', sans-serif;
-  cursor: pointer; transition: all .2s; touch-action: manipulation;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.load-more-btn:hover { border-color: var(--border2); color: var(--text); }
-.load-more-btn:active { opacity: .7; }
-.load-more-btn:disabled { opacity: .4; pointer-events: none; }
-
-/* PULL TO REFRESH */
-.ptr-indicator {
-  text-align: center; padding: 0; font-size: 13px; color: var(--text3);
-  height: 0; overflow: hidden; transition: height .2s, padding .2s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.ptr-indicator.active { height: 48px; padding: 12px 0; }
-.ptr-spinner { width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
-
-/* SHARE BTN in modal */
-.modal-share-btn {
-  width: 100%; padding: 13px; border-radius: 12px; border: 1px solid var(--border);
-  background: var(--bg3); color: var(--text2); font-size: 14px;
-  font-family: 'Noto Sans TC', sans-serif; cursor: pointer; margin-top: 8px;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  touch-action: manipulation; transition: all .2s;
-}
-.modal-share-btn:hover { border-color: var(--border2); color: var(--text); }
-.modal-share-btn:active { opacity: .7; }
-
-/* BOTTOM NAV */
+  /* BOTTOM NAV */
   .bottom-nav { padding: 6px 0 env(safe-area-inset-bottom, 10px); }
   .bnav-btn { font-size: 10px; padding: 4px 0; }
   .bnav-icon { font-size: 22px; }
@@ -332,57 +280,6 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
 .rest-card:active { transform: scale(0.99); opacity: .92; transition: transform .1s, opacity .1s; }
 .filter-pill:active, .sort-btn:active { opacity: .7; transform: scale(0.97); }
 
-
-
-/* SKELETON */
-.skeleton-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; overflow: hidden; }
-.skeleton-inner { display: flex; }
-.skeleton-img { width: 100px; min-height: 118px; background: var(--bg3); flex-shrink: 0; position: relative; overflow: hidden; }
-.skeleton-body { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-.skeleton-line { height: 12px; background: var(--bg3); border-radius: 6px; position: relative; overflow: hidden; }
-.skeleton-line.wide { width: 70%; }
-.skeleton-line.mid { width: 45%; }
-.skeleton-line.short { width: 30%; }
-.skeleton-img::after, .skeleton-line::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-  animation: shimmer 1.4s infinite;
-}
-@keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
-
-/* LOAD MORE */
-.load-more-btn {
-  width: 100%; padding: 14px; margin-top: 4px; margin-bottom: 16px;
-  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-  color: var(--text2); font-size: 14px; font-family: 'Noto Sans TC', sans-serif;
-  cursor: pointer; transition: all .2s; touch-action: manipulation;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.load-more-btn:hover { border-color: var(--border2); color: var(--text); }
-.load-more-btn:active { opacity: .7; }
-.load-more-btn:disabled { opacity: .4; pointer-events: none; }
-
-/* PULL TO REFRESH */
-.ptr-indicator {
-  text-align: center; padding: 0; font-size: 13px; color: var(--text3);
-  height: 0; overflow: hidden; transition: height .2s, padding .2s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.ptr-indicator.active { height: 48px; padding: 12px 0; }
-.ptr-spinner { width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
-
-/* SHARE BTN in modal */
-.modal-share-btn {
-  width: 100%; padding: 13px; border-radius: 12px; border: 1px solid var(--border);
-  background: var(--bg3); color: var(--text2); font-size: 14px;
-  font-family: 'Noto Sans TC', sans-serif; cursor: pointer; margin-top: 8px;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  touch-action: manipulation; transition: all .2s;
-}
-.modal-share-btn:hover { border-color: var(--border2); color: var(--text); }
-.modal-share-btn:active { opacity: .7; }
 
 /* BOTTOM NAV */
 .bottom-nav { display: none; }
@@ -404,6 +301,39 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
 @media (max-width: 600px) {
   .fab-ai { display: none; } /* shown via JS */
 }
+
+/* AI CHAT PANEL */
+.ai-panel {
+  position: fixed; inset: 0; z-index: 300; background: var(--bg);
+  display: flex; flex-direction: column; transform: translateY(100%);
+  transition: transform .35s cubic-bezier(.32,.72,0,1);
+}
+.ai-panel.open { transform: translateY(0); }
+.ai-panel-header {
+  padding: 16px 20px 12px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg);
+}
+.ai-panel-title { font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.ai-panel-close { background: var(--bg3); border: none; color: var(--text2); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
+.ai-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
+.ai-msg { max-width: 85%; padding: 12px 14px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
+.ai-msg.user { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+.ai-msg.bot { background: var(--card); border: 1px solid var(--border); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
+.ai-msg.bot em { color: var(--accent2); font-style: normal; }
+.ai-msg.typing { background: var(--card); border: 1px solid var(--border); align-self: flex-start; padding: 14px 18px; }
+.typing-dots { display: flex; gap: 4px; }
+.typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: bounce .9s infinite; }
+.typing-dots span:nth-child(2) { animation-delay: .15s; }
+.typing-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+.ai-input-row { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: var(--bg); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+.ai-text-input { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 99px; padding: 10px 16px; font-size: 16px; color: var(--text); font-family: 'Noto Sans TC', sans-serif; outline: none; }
+.ai-text-input::placeholder { color: var(--text3); }
+.ai-send-btn { background: var(--accent); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 16px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
+.ai-suggestions { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 12px; }
+.ai-sug { font-size: 12px; padding: 6px 12px; border-radius: 99px; border: 1px solid var(--border); color: var(--text2); background: var(--card); cursor: pointer; touch-action: manipulation; white-space: nowrap; }
+.ai-sug:active { opacity: .7; }
 
 /* FAVORITES */
 .fav-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px; touch-action: manipulation; line-height: 1; }
@@ -472,17 +402,6 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
 .fade-in:nth-child(4){animation-delay:.19s}
 .fade-in:nth-child(5){animation-delay:.24s}
 </style>
-
-<link rel="manifest" href="data:application/json,{
-  %22name%22:%22%E7%BE%8E%E9%A3%9F%E9%9B%B7%E9%81%94%22,
-  %22short_name%22:%22%E7%BE%8E%E9%A3%9F%E9%9B%B7%E9%81%94%22,
-  %22display%22:%22standalone%22,
-  %22background_color%22:%22%230d0d0f%22,
-  %22theme_color%22:%22%23ff6b35%22,
-  %22start_url%22:%22/%22,
-  %22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/restaurant.png%22,%22sizes%22:%2296x96%22,%22type%22:%22image/png%22}]
-}">
-<meta name="theme-color" content="#0d0d0f">
 </head>
 <body>
 
@@ -568,12 +487,15 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
   </div>
 
   <div class="results-area">
-
+    <div class="ai-card" id="aiCard">
+      <div class="ai-header"><span>◈</span><span class="ai-title">搜尋結果</span></div>
+      <div class="ai-thinking" id="aiThinking"></div>
+      <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
+    </div>
     <div class="results-header">
       <div class="results-title">找到 <strong id="resultCount">0</strong> 間</div>
     </div>
-    <div class="ptr-indicator" id="ptrIndicator"><div class="ptr-spinner"></div>更新中...</div>
-  <div id="resultsList">
+    <div id="resultsList">
       <div class="state-box">
         <div class="state-icon">📍</div>
         <div class="state-title">正在取得你的位置...</div>
@@ -603,10 +525,35 @@ body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
   <button class="bnav-btn active" id="bnav-home" onclick="bnavSwitch('home',this)">
     <span class="bnav-icon">🍽</span>探索
   </button>
+  <button class="bnav-btn" id="bnav-ai" onclick="openAiPanel()">
+    <span class="bnav-icon">◈</span>AI 推薦
+  </button>
   <button class="bnav-btn" id="bnav-fav" onclick="openFavPanel()">
     <span class="bnav-icon">🤍</span>收藏
   </button>
 </nav>
+
+<!-- AI PANEL -->
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-panel-header">
+    <div class="ai-panel-title">◈ <span>AI 美食顧問</span></div>
+    <button class="ai-panel-close" onclick="closeAiPanel()">✕</button>
+  </div>
+  <div class="ai-messages" id="aiMessages">
+    <div class="ai-msg bot">你好！我是你的 AI 美食顧問 🍜<br>告訴我你今天想吃什麼、什麼情境，我幫你找最適合的店。</div>
+  </div>
+  <div class="ai-suggestions" id="aiSuggestions">
+    <button class="ai-sug" onclick="aiQuick('適合約會的餐廳，要有氣氛')">🕯 約會餐廳</button>
+    <button class="ai-sug" onclick="aiQuick('安靜有插座的咖啡廳，適合工作')">☕ 工作咖啡</button>
+    <button class="ai-sug" onclick="aiQuick('深夜宵夜，CP值高')">🌙 深夜宵夜</button>
+    <button class="ai-sug" onclick="aiQuick('朋友聚餐，熱鬧氣氛')">🎉 朋友聚餐</button>
+    <button class="ai-sug" onclick="aiQuick('網美打卡，拍照好看')">📸 網美餐廳</button>
+  </div>
+  <div class="ai-input-row">
+    <input type="text" class="ai-text-input" id="aiTextInput" placeholder="描述你的需求..." onkeydown="if(event.key==='Enter')sendAiMsg()">
+    <button class="ai-send-btn" onclick="sendAiMsg()">→</button>
+  </div>
+</div>
 
 <!-- FAVORITES PANEL -->
 <div class="fav-panel" id="favPanel">
@@ -715,83 +662,53 @@ function initMap() {
 }
 
 // ── FETCH PLACES ──
-let nextPageToken = null;
-let currentKeyword = '';
-
 function fetchNearby(type, keyword = '') {
   if (!placesService) return;
-  currentKeyword = keyword;
-  nextPageToken = null;
-  showSkeleton();
+  setLoading(true);
 
-  const req = {
-    location: new google.maps.LatLng(userLat, userLng),
-    radius: currentRadius,
-    type: PLACE_TYPES[type],
-    language: 'zh-TW'
-  };
-  if (keyword) req.keyword = keyword;
-
-  placesService.nearbySearch(req, (results, status, pagination) => {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      allPlaces = results;
-      nextPageToken = pagination?.hasNextPage ? pagination : null;
-      renderPlaces(results, keyword);
-      updateMapMarkers(results);
-      if (nextPageToken) appendLoadMore();
-    } else if (status === 'ZERO_RESULTS') {
-      showEmpty('附近沒有找到符合的店家', '試試擴大搜尋範圍或換個類別');
-    } else {
-      showToast('❌ 搜尋失敗：' + status);
-      showEmpty('搜尋失敗', '請確認 API Key 已啟用 Places API');
-    }
-  });
-}
-
-function loadMore() {
-  if (!nextPageToken) return;
-  const btn = document.getElementById('loadMoreBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '載入中...'; }
-  setTimeout(() => {
-    nextPageToken.nextPage((results, status, pagination) => {
+  if (keyword) {
+    // Use textSearch for keyword queries - better Chinese support
+    const req = {
+      query: keyword,
+      location: new google.maps.LatLng(userLat, userLng),
+      radius: currentRadius,
+      language: 'zh-TW'
+    };
+    placesService.textSearch(req, (results, status) => {
+      setLoading(false);
       if (status === google.maps.places.PlacesServiceStatus.OK) {
-        allPlaces = [...allPlaces, ...results];
-        nextPageToken = pagination?.hasNextPage ? pagination : null;
-        renderPlaces(allPlaces, currentKeyword);
-        updateMapMarkers(allPlaces);
-        if (nextPageToken) appendLoadMore();
-        showToast('✓ 已載入更多店家');
+        allPlaces = results;
+        renderPlaces(results, keyword);
+        updateMapMarkers(results);
+      } else if (status === 'ZERO_RESULTS') {
+        showEmpty('找不到「' + keyword + '」相關店家', '試試其他關鍵字或擴大搜尋範圍');
+      } else {
+        showToast('❌ 搜尋失敗：' + status);
+        showEmpty('搜尋失敗', '請確認 API Key 已啟用 Places API');
       }
     });
-  }, 2000);
-}
-
-function appendLoadMore() {
-  const existing = document.getElementById('loadMoreBtn');
-  if (existing) existing.remove();
-  const btn = document.createElement('button');
-  btn.id = 'loadMoreBtn';
-  btn.className = 'load-more-btn';
-  btn.innerHTML = '↓ 載入更多店家';
-  btn.onclick = loadMore;
-  document.getElementById('resultsList').appendChild(btn);
-}
-
-function showSkeleton() {
-  const list = document.getElementById('resultsList');
-  list.innerHTML = Array(4).fill(0).map(() => `
-    <div class="skeleton-card">
-      <div class="skeleton-inner">
-        <div class="skeleton-img"></div>
-        <div class="skeleton-body">
-          <div class="skeleton-line wide"></div>
-          <div class="skeleton-line short"></div>
-          <div class="skeleton-line mid"></div>
-          <div class="skeleton-line short"></div>
-        </div>
-      </div>
-    </div>`).join('');
-  document.getElementById('resultCount').textContent = '—';
+  } else {
+    // Use nearbySearch for category browsing
+    const req = {
+      location: new google.maps.LatLng(userLat, userLng),
+      radius: currentRadius,
+      type: PLACE_TYPES[type],
+      language: 'zh-TW'
+    };
+    placesService.nearbySearch(req, (results, status) => {
+      setLoading(false);
+      if (status === google.maps.places.PlacesServiceStatus.OK) {
+        allPlaces = results;
+        renderPlaces(results, '');
+        updateMapMarkers(results);
+      } else if (status === 'ZERO_RESULTS') {
+        showEmpty('附近沒有找到符合的店家', '試試擴大搜尋範圍或換個類別');
+      } else {
+        showToast('❌ 搜尋失敗：' + status);
+        showEmpty('搜尋失敗', '請確認 API Key 已啟用 Places API');
+      }
+    });
+  }
 }
 
 function calcScore(place) {
@@ -831,8 +748,10 @@ function renderPlaces(places, keyword) {
     const score = calcScore(p);
     const rating = p.rating || 0;
     const reviews = p.user_ratings_total || 0;
-    const isOpen = p.opening_hours?.isOpen?.() ?? null;
-    const photo = p.photos?.[0]?.getUrl({ maxWidth: 160, maxHeight: 160 });
+    let isOpen = null;
+    try { isOpen = p.opening_hours?.isOpen?.() ?? null; } catch(e) { isOpen = null; }
+    let photo = null;
+    try { photo = p.photos?.[0]?.getUrl({ maxWidth: 160, maxHeight: 160 }); } catch(e) { photo = null; }
     const stars = renderStars(rating);
     const typeName = p.types?.[0]?.replace(/_/g, ' ') || TYPE_LABELS[currentCategory];
     return `
@@ -854,7 +773,7 @@ function renderPlaces(places, keyword) {
               <div class="score-label">推薦指數</div>
             </div>
           </div>
-          <div class="card-desc">${p.vicinity || ''}</div>
+          <div class="card-desc">${p.vicinity || p.formatted_address || ''}</div>
           <div class="card-tags">
             ${rating >= 4.5 ? '<span class="ctag ctag-orange">高評分</span>' : ''}
             ${reviews >= 500 ? '<span class="ctag ctag-teal">熱門</span>' : ''}
@@ -882,21 +801,23 @@ function renderStars(rating) {
 
 function calcDistNum(loc) {
   if (!loc || !userLat) return 99999;
-  const R = 6371000;
-  const dLat = (loc.lat() - userLat) * Math.PI / 180;
-  const dLng = (loc.lng() - userLng) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(userLat * Math.PI/180) * Math.cos(loc.lat() * Math.PI/180) * Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  try {
+    const lat = typeof loc.lat === 'function' ? loc.lat() : loc.lat;
+    const lng = typeof loc.lng === 'function' ? loc.lng() : loc.lng;
+    const R = 6371000;
+    const dLat = (lat - userLat) * Math.PI / 180;
+    const dLng = (lng - userLng) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(userLat * Math.PI/180) * Math.cos(lat * Math.PI/180) * Math.sin(dLng/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  } catch(e) { return 99999; }
 }
 
 function formatDist(loc) {
   if (!loc || !userLat) return '—';
-  const R = 6371000;
-  const dLat = (loc.lat() - userLat) * Math.PI / 180;
-  const dLng = (loc.lng() - userLng) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(userLat * Math.PI/180) * Math.cos(loc.lat() * Math.PI/180) * Math.sin(dLng/2)**2;
-  const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return d < 1000 ? Math.round(d) + 'm' : (d/1000).toFixed(1) + 'km';
+  try {
+    const d = calcDistNum(loc);
+    return d === 99999 ? '—' : d < 1000 ? Math.round(d) + 'm' : (d/1000).toFixed(1) + 'km';
+  } catch(e) { return '—'; }
 }
 
 // ── MAP MARKERS ──
@@ -986,8 +907,10 @@ function switchView(view, el) {
 // ── UTILS ──
 function setLoading(on) {
   const btn = document.getElementById('searchBtn');
+  const list = document.getElementById('resultsList');
   btn.disabled = on;
   document.getElementById('btnText').textContent = on ? '搜尋中...' : '搜尋';
+  if (on) list.innerHTML = `<div class="state-box"><div class="spinner"></div><div class="state-title">搜尋附近店家中...</div></div>`;
 }
 function showEmpty(title, sub) {
   document.getElementById('resultsList').innerHTML = `<div class="state-box"><div class="state-icon">🔍</div><div class="state-title">${title}</div><div class="state-sub">${sub}</div></div>`;
@@ -1085,8 +1008,8 @@ function openFavPanel() {
 }
 function closeFavPanel() {
   document.getElementById('favPanel').classList.remove('open');
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('bnav-home').classList.add('active');
+  document.getElementById('bnav-fav').classList.remove('active');
 }
 
 function renderFavList() {
@@ -1159,8 +1082,80 @@ function bnavSwitch(tab, el) {
 }
 
 // ── AI PANEL ──
+function openAiPanel() {
+  document.getElementById('aiPanel').classList.add('open');
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('bnav-ai').classList.add('active');
+  setTimeout(() => document.getElementById('aiTextInput').focus(), 400);
+}
+function closeAiPanel() {
+  document.getElementById('aiPanel').classList.remove('open');
+  document.getElementById('bnav-home').classList.add('active');
+  document.getElementById('bnav-ai').classList.remove('active');
+}
 
+function aiQuick(msg) {
+  document.getElementById('aiTextInput').value = msg;
+  sendAiMsg();
+}
 
+function sendAiMsg() {
+  const input = document.getElementById('aiTextInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  document.getElementById('aiSuggestions').style.display = 'none';
+
+  const messages = document.getElementById('aiMessages');
+  messages.innerHTML += `<div class="ai-msg user">${msg}</div>`;
+  messages.innerHTML += `<div class="ai-msg typing" id="typingDot"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  messages.scrollTop = messages.scrollHeight;
+
+  // AI logic based on keywords
+  setTimeout(() => {
+    document.getElementById('typingDot')?.remove();
+    const reply = getAiReply(msg);
+    messages.innerHTML += `<div class="ai-msg bot">${reply.text}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+
+    // Apply filter if suggested
+    if (reply.category) {
+      closeAiPanel();
+      const filterBtn = document.querySelector('.filter-pill[data-cat="' + reply.category + '"]');
+      if (filterBtn) setCategory(filterBtn, reply.category);
+      else fetchNearby(reply.category, reply.keyword || '');
+      if (reply.keyword) {
+        document.getElementById('searchInput').value = reply.keyword;
+        toggleClear();
+      }
+      document.getElementById('bnav-home').classList.add('active');
+      document.getElementById('bnav-ai').classList.remove('active');
+    }
+  }, 1400);
+}
+
+function getAiReply(msg) {
+  const q = msg.toLowerCase();
+  if (q.includes('約會') || q.includes('浪漫') || q.includes('氣氛')) {
+    return { text: '約會首選 🕯<br>我幫你找<em>高評分、氣氛好</em>的餐廳，已篩選掉熱炒、快餐等嘈雜場所，優先推薦有包廂或窗邊座位的店。<br><br>正在切換到約會餐廳模式...', category: 'restaurant', keyword: '約會' };
+  } else if (q.includes('工作') || q.includes('插座') || q.includes('安靜')) {
+    return { text: '工作咖啡廳模式 ☕<br>為你篩選<em>有插座、WiFi 穩定、環境安靜</em>的咖啡廳，適合久坐辦公。<br><br>正在切換...', category: 'cafe', keyword: '咖啡' };
+  } else if (q.includes('宵夜') || q.includes('深夜') || q.includes('晚上')) {
+    return { text: '深夜宵夜推薦 🌙<br>篩選<em>晚間營業、CP值高</em>的店家，熱炒、鹹酥雞、拉麵都是好選擇。<br><br>正在搜尋...', category: 'restaurant', keyword: '宵夜' };
+  } else if (q.includes('聚餐') || q.includes('朋友') || q.includes('熱鬧')) {
+    return { text: '朋友聚餐模式 🎉<br>優先推薦<em>評論數多、座位寬敞</em>的餐廳，代表接受度高、適合多人同行。<br><br>正在搜尋...', category: 'restaurant', keyword: '聚餐' };
+  } else if (q.includes('網美') || q.includes('打卡') || q.includes('拍照')) {
+    return { text: '網美打卡餐廳 📸<br>為你找<em>裝潢有質感、食物好看</em>的店，IG 上出現頻率高的都在這裡。<br><br>正在搜尋...', category: 'cafe', keyword: '網美' };
+  } else if (q.includes('咖啡')) {
+    return { text: '咖啡廳推薦 ☕<br>幫你找附近評分最高的咖啡廳，依推薦指數排序。', category: 'cafe', keyword: '' };
+  } else if (q.includes('甜點') || q.includes('蛋糕') || q.includes('烘焙')) {
+    return { text: '甜點推薦 🍰<br>幫你找附近高評分的甜點店和烘焙坊。', category: 'bakery', keyword: '' };
+  } else if (q.includes('酒') || q.includes('bar') || q.includes('調酒')) {
+    return { text: '酒吧推薦 🥃<br>幫你找附近評分高的酒吧，適合小酌放鬆。', category: 'bar', keyword: '' };
+  } else {
+    return { text: `收到你的需求「${msg}」🍽<br>我幫你在附近搜尋相關店家，依<em>推薦指數排序</em>呈現給你。<br><br>正在搜尋...`, category: 'restaurant', keyword: msg };
+  }
+}
 
 // ── NAVIGATE ──
 function navigateTo(address) {
@@ -1172,73 +1167,19 @@ function navigateTo(address) {
   window.open(url, '_blank');
 }
 
-
-// ── SHARE ──
-function sharePlace(name, address, url) {
-  haptic();
-  const shareData = {
-    title: name,
-    text: address,
-    url: url || location.href
-  };
-  if (navigator.share) {
-    navigator.share(shareData).catch(() => {});
-  } else {
-    navigator.clipboard?.writeText(url || location.href).then(() => showToast('✓ 已複製連結'));
-  }
-}
-
-// ── HAPTIC ──
-function haptic(ms = 8) {
-  if (navigator.vibrate) navigator.vibrate(ms);
-}
-
-// ── PULL TO REFRESH ──
-let ptrStartY = 0;
-let ptrActive = false;
-
-document.addEventListener('touchstart', e => {
-  if (e.touches.length === 1 && window.scrollY === 0) {
-    ptrStartY = e.touches[0].clientY;
-  } else {
-    ptrStartY = 0; // disable PTR on pinch
-  }
-}, { passive: true });
-
-document.addEventListener('touchmove', e => {
-  if (!ptrStartY || e.touches.length > 1) {
-    ptrStartY = 0; // cancel PTR if pinch detected mid-gesture
-    return;
-  }
-  const dy = e.touches[0].clientY - ptrStartY;
-  if (dy > 60 && window.scrollY === 0 && !ptrActive) {
-    ptrActive = true;
-    document.getElementById('ptrIndicator').classList.add('active');
-    haptic(15);
-  }
-}, { passive: true });
-
-document.addEventListener('touchend', () => {
-  if (ptrActive) {
-    ptrActive = false;
-    ptrStartY = 0;
-    fetchNearby(currentCategory, currentKeyword);
-    setTimeout(() => document.getElementById('ptrIndicator').classList.remove('active'), 800);
-  } else {
-    ptrStartY = 0;
-  }
-});
-
-// Add haptic to all interactive elements
-document.addEventListener('click', e => {
-  if (e.target.closest('button, .rest-card, .filter-pill, .sort-btn, .qtag')) {
-    haptic();
-  }
-}, { passive: true });
-
 // ── INIT ──
 loadGoogleMaps();
 renderRecent();
+
+// Fix iOS input zoom reset
+document.querySelectorAll('input, textarea').forEach(el => {
+  el.addEventListener('blur', () => {
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+      document.body.style.zoom = 1;
+      window.scrollTo(0, window.scrollY);
+    }
+  });
+});
 </script>
 </body>
 </html>
