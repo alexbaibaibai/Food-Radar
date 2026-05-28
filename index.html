@@ -81,48 +81,6 @@ img { display: block; max-width: 100%; }
 .page.active { display: block; }
 
 /* ═══════════════════════════════
-   SETUP PAGE
-═══════════════════════════════ */
-#page-setup {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  padding: 24px;
-}
-.setup-card {
-  background: var(--card); border: 1px solid var(--border2);
-  border-radius: var(--r-xl); padding: 44px 36px;
-  max-width: 440px; width: 100%;
-  box-shadow: var(--shadow);
-}
-.setup-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 36px; font-weight: 700;
-  margin-bottom: 6px;
-  line-height: 1;
-}
-.setup-logo em { color: var(--accent); font-style: italic; }
-.setup-tagline { font-size: 13px; color: var(--text3); margin-bottom: 36px; letter-spacing: .04em; }
-.setup-label { font-size: 12px; color: var(--text2); margin-bottom: 8px; letter-spacing: .06em; text-transform: uppercase; }
-.setup-input {
-  width: 100%; background: var(--bg3);
-  border: 1px solid var(--border2); border-radius: var(--r-md);
-  padding: 14px 16px; color: var(--text);
-  outline: none; transition: border-color .2s;
-  margin-bottom: 8px; letter-spacing: .02em;
-}
-.setup-input:focus { border-color: rgba(255,95,46,.5); }
-.setup-hint { font-size: 12px; color: var(--text3); margin-bottom: 28px; line-height: 1.6; }
-.setup-hint a { color: var(--accent); }
-.setup-err { font-size: 12px; color: #ff5f5f; margin-bottom: 12px; display: none; }
-.btn-primary {
-  width: 100%; background: var(--accent); color: #fff;
-  border: none; border-radius: var(--r-md); padding: 14px;
-  font-size: 15px; font-weight: 500; cursor: pointer;
-  transition: all .2s; letter-spacing: .02em;
-}
-.btn-primary:hover { background: #ff7a52; transform: translateY(-1px); }
-.btn-primary:active { transform: translateY(0); opacity: .9; }
-
-/* ═══════════════════════════════
    MAIN APP HEADER
 ═══════════════════════════════ */
 #page-main { padding-bottom: 80px; }
@@ -398,20 +356,7 @@ img { display: block; max-width: 100%; }
 }
 .r-fav-btn:active { transform: scale(1.35); }
 
-/* AI loading badge on card */
-.r-ai-loading {
-  display: none; align-items: center; gap: 5px;
-  font-size: 11px; color: var(--accent); margin-bottom: 7px;
-}
-.r-ai-loading.visible { display: flex; }
-.ai-dots span {
-  display: inline-block; width: 4px; height: 4px; border-radius: 50%;
-  background: var(--accent); margin: 0 1px;
-  animation: aiDot .8s infinite;
-}
-.ai-dots span:nth-child(2) { animation-delay: .15s; }
-.ai-dots span:nth-child(3) { animation-delay: .3s; }
-@keyframes aiDot { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-4px);opacity:1} }
+ 30%{transform:translateY(-4px);opacity:1} }
 
 /* ═══════════════════════════════
    STATE BOXES
@@ -639,24 +584,8 @@ img { display: block; max-width: 100%; }
 
 <div id="app">
 
-  <!-- ═══ SETUP PAGE ═══ -->
-  <div id="page-setup" class="page active">
-    <div class="setup-card">
-      <div class="setup-logo">美食<em>雷達</em></div>
-      <div class="setup-tagline">AI 驅動的在地美食探索</div>
-      <div class="setup-label">Google Maps API Key</div>
-      <input type="text" class="setup-input" id="setupKey" placeholder="AIzaSy..." autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')initApp()">
-      <div class="setup-hint">
-        Key 僅存於你的瀏覽器本機，不經過任何伺服器。<br>
-        <a href="https://console.cloud.google.com/apis/credentials" target="_blank">前往申請 Google Maps API Key →</a>
-      </div>
-      <div class="setup-err" id="setupErr">Key 格式不正確，請確認完整複製</div>
-      <button class="btn-primary" onclick="initApp()">開始探索 →</button>
-    </div>
-  </div>
-
   <!-- ═══ MAIN PAGE ═══ -->
-  <div id="page-main" class="page">
+  <div id="page-main" class="page active">
 
     <header class="app-header">
       <div class="app-header-inner">
@@ -848,17 +777,6 @@ const CAT = {
 /* ══════════════════════════════════════
    SETUP
 ══════════════════════════════════════ */
-function initApp() {
-  const key = document.getElementById('setupKey').value.trim();
-  if (!key.startsWith('AIza') || key.length < 30) {
-    document.getElementById('setupErr').style.display = 'block';
-    return;
-  }
-  S.apiKey = key;
-  localStorage.setItem('fr_key2', key);
-  showPage('page-main');
-  loadSDK();
-}
 
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -870,7 +788,7 @@ function showPage(id) {
 ══════════════════════════════════════ */
 function loadSDK() {
   const s = document.createElement('script');
-  s.src = `https://maps.googleapis.com/maps/api/js?key=${S.apiKey}&libraries=places&language=zh-TW&callback=onSDKReady`;
+  s.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAQ0QASgyiJ_jLUCi9wCb3E4ADonC3FGys&libraries=places&language=zh-TW&callback=onSDKReady`;
   s.async = true;
   s.onerror = () => toast('❌ API Key 無效');
   document.head.appendChild(s);
@@ -1081,10 +999,7 @@ function renderCards(places, keyword) {
   list.innerHTML = sorted.map((p,i) => cardHTML(p,i)).join('') +
     `<div class="no-more">— 共 ${sorted.length} 間 —</div>`;
 
-  // Trigger AI reasons for top 5
-  sorted.slice(0,5).forEach((p,i) => {
-    if (keyword || i < 3) scheduleAiReason(p, keyword, i);
-  });
+
 }
 
 function cardHTML(p, i) {
@@ -1119,11 +1034,7 @@ function cardHTML(p, i) {
           </div>
         </div>
         <div class="r-card-addr">${addr}</div>
-        <div class="r-ai-loading" id="ail-${p.place_id}">
-          <span style="font-size:10px;color:var(--accent)">◈</span>
-          AI 分析中<span class="ai-dots"><span></span><span></span><span></span></span>
-        </div>
-        <div class="r-ai-reason" id="air-${p.place_id}"></div>
+
         <div class="r-badges">${badges}</div>
         <div class="r-card-meta">
           <div class="r-meta-item">📍 ${fmtDist(p.geometry?.location)}</div>
@@ -1152,45 +1063,6 @@ function buildBadges(p) {
 }
 
 /* ══════════════════════════════════════
-   AI REASON (Claude API)
-══════════════════════════════════════ */
-async function scheduleAiReason(p, keyword, idx) {
-  await new Promise(r => setTimeout(r, idx * 600));
-  const loadEl = document.getElementById(`ail-${p.place_id}`);
-  const reasonEl = document.getElementById(`air-${p.place_id}`);
-  if (!loadEl || !reasonEl) return;
-
-  loadEl.classList.add('visible');
-
-  const prompt = `你是台灣在地美食推薦專家。根據以下店家資訊，給出一句話（繁體中文，30字以內）的推薦理由，要具體、有溫度、讓人想去。
-店名：${p.name}
-評分：${p.rating}（${p.user_ratings_total}則評論）
-類型：${(p.types||[]).slice(0,3).join('、')}
-地址：${p.vicinity||p.formatted_address||''}
-${keyword ? `使用者搜尋：${keyword}` : ''}
-直接輸出推薦理由，不要加任何前綴或標點符號開頭。`;
-
-  try {
-    const res = await fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, maxTokens: 100 })
-    });
-    const data = await res.json();
-    const text = data.text || '';
-    if (text) {
-      loadEl.classList.remove('visible');
-      reasonEl.innerHTML = `<span class="r-ai-reason-icon">◈</span>${text}`;
-      reasonEl.classList.add('visible');
-    } else {
-      loadEl.classList.remove('visible');
-    }
-  } catch {
-    loadEl.classList.remove('visible');
-  }
-}
-
-/* ══════════════════════════════════════
    DETAIL MODAL
 ══════════════════════════════════════ */
 function openDetail(placeId) {
@@ -1205,7 +1077,6 @@ function openDetail(placeId) {
     if (status !== google.maps.places.PlacesServiceStatus.OK) { toast('無法取得詳細資訊'); return; }
     S.currentPlace = place;
     renderModal(place);
-    fetchModalAiReason(place);
   });
 }
 
@@ -1218,8 +1089,7 @@ function renderModal(p) {
   document.getElementById('mName').textContent = p.name;
   document.getElementById('mSub').textContent = (p.types?.[0]||'').replace(/_/g,' ');
   document.getElementById('mFavBtn').textContent = isFav ? '❤️':'🤍';
-  document.getElementById('mAiBox').classList.remove('visible');
-  document.getElementById('mAiText').textContent = '';
+
 
   document.getElementById('mNavBtn').setAttribute('data-addr', p.formatted_address||p.name);
 
@@ -1269,32 +1139,6 @@ function renderModal(p) {
   document.getElementById('modal').classList.add('open');
 }
 
-async function fetchModalAiReason(p) {
-  const box = document.getElementById('mAiBox');
-  const txt = document.getElementById('mAiText');
-  box.classList.add('visible');
-  txt.innerHTML = '<span style="color:var(--text3)">AI 分析中...</span>';
-
-  const prompt = `你是台灣在地美食推薦專家。根據以下店家資訊，寫出詳細推薦理由（繁體中文，60-80字），說明為何值得去、適合什麼情境、有什麼特色。語氣要有溫度、具體，讓人讀完就想去。
-店名：${p.name}
-評分：${p.rating}（${p.user_ratings_total}則評論）
-類型：${(p.types||[]).slice(0,3).join('、')}
-地址：${p.formatted_address||''}
-直接輸出推薦理由，不要加任何前綴。`;
-
-  try {
-    const res = await fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, maxTokens: 200 })
-    });
-    const data = await res.json();
-    const text = data.text || '';
-    txt.innerHTML = text || '<span style="color:var(--text3)">暫無 AI 分析</span>';
-  } catch {
-    txt.innerHTML = '<span style="color:var(--text3)">AI 分析暫時無法使用</span>';
-  }
-}
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 function onModalOverlayClick(e) { if (e.target===document.getElementById('modal')) closeModal(); }
@@ -1413,7 +1257,6 @@ function openDetailById(placeId) {
     S.currentPlace = place;
     closeFav();
     setTimeout(()=>renderModal(place), 320);
-    fetchModalAiReason(place);
   });
 }
 
@@ -1530,14 +1373,8 @@ document.addEventListener('DOMContentLoaded', () => {
    INIT
 ══════════════════════════════════════ */
 (function() {
-  const saved = localStorage.getItem('fr_key2');
-  if (saved) {
-    document.getElementById('setupKey').value = saved;
-    S.apiKey = saved;
-    showPage('page-main');
-    loadSDK();
-  }
   updateFavCount();
+  loadSDK();
 })();
 </script>
 </body>
