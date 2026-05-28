@@ -2,1144 +2,1543 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>美食雷達 — AI 美食探索</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 <style>
+/* ═══════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════ */
 :root {
-  --bg: #0d0d0f;
-  --bg2: #141418;
-  --bg3: #1c1c22;
-  --card: #18181f;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --text: #f0efec;
-  --text2: #8a8990;
-  --text3: #5a5960;
-  --accent: #ff6b35;
-  --accent2: #ffaa00;
-  --teal: #00c9a7;
-  --pink: #ff6b9d;
-  --radius: 16px;
+  --bg:        #0a0a0d;
+  --bg2:       #111116;
+  --bg3:       #18181f;
+  --card:      #14141a;
+  --card2:     #1c1c24;
+  --border:    rgba(255,255,255,0.06);
+  --border2:   rgba(255,255,255,0.11);
+  --text:      #eeecf0;
+  --text2:     #888790;
+  --text3:     #4a4850;
+  --accent:    #ff5f2e;
+  --accent2:   #ffb020;
+  --teal:      #0fd4a8;
+  --pink:      #ff4d8f;
+  --blue:      #4d8fff;
+  --r-sm:      8px;
+  --r-md:      14px;
+  --r-lg:      20px;
+  --r-xl:      28px;
+  --shadow:    0 8px 32px rgba(0,0,0,0.5);
+  --shadow-sm: 0 2px 12px rgba(0,0,0,0.3);
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Noto Sans TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; font-size: 16px; }
-body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.4; }
-.glow-orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
-.orb1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,107,53,0.12), transparent 70%); top: -200px; right: -100px; }
-.orb2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,201,167,0.08), transparent 70%); bottom: -100px; left: -100px; }
 
-/* HEADER */
-header { position: sticky; top: 0; z-index: 100; background: rgba(13,13,15,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 24px; }
-.header-inner { max-width: 900px; margin: 0 auto; height: 60px; display: flex; align-items: center; justify-content: space-between; }
-.logo { font-family: 'DM Serif Display', serif; font-size: 22px; display: flex; align-items: center; gap: 8px; }
-.logo span { color: var(--accent); font-style: italic; }
-.logo-sub { font-size: 11px; color: var(--text3); font-family: 'Noto Sans TC', sans-serif; letter-spacing: .08em; }
-.loc-pill { display: flex; align-items: center; gap: 6px; background: var(--bg3); border: 1px solid var(--border); padding: 6px 12px; border-radius: 99px; font-size: 12px; color: var(--text2); cursor: pointer; transition: all .2s; }
-.loc-pill:hover { border-color: var(--border2); color: var(--text); }
-.loc-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+/* ═══════════════════════════════
+   RESET & BASE
+═══════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { overflow-x:hidden; -webkit-text-size-adjust:100%; }
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: 16px; /* prevent iOS zoom */
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
 
-/* MAP */
-#map-container { display: none; height: 300px; width: 100%; position: relative; z-index: 1; }
-#map { height: 100%; width: 100%; }
+/* ═══════════════════════════════
+   AMBIENT BACKGROUND
+═══════════════════════════════ */
+.ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+}
+.ambient-orb {
+  position: absolute; border-radius: 50%; filter: blur(100px); opacity: .6;
+}
+.orb-a { width:500px; height:500px; background:radial-gradient(circle,rgba(255,95,46,.1),transparent 70%); top:-150px; right:-100px; }
+.orb-b { width:400px; height:400px; background:radial-gradient(circle,rgba(13,212,168,.07),transparent 70%); bottom:-100px; left:-100px; }
+.noise {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 
-/* SEARCH */
-.search-wrap { max-width: 900px; margin: 0 auto; padding: 32px 24px 16px; position: relative; z-index: 1; }
-.search-label { font-size: 13px; color: var(--text3); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 10px; }
-.ai-search-box { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); transition: border-color .2s, box-shadow .2s; overflow: hidden; }
-.ai-search-box:focus-within { border-color: rgba(255,107,53,0.4); box-shadow: 0 0 0 3px rgba(255,107,53,0.08); }
-.ai-search-box textarea { width: 100%; background: transparent; border: none; outline: none; padding: 16px 20px 10px; font-size: 15px; font-family: 'Noto Sans TC', sans-serif; color: var(--text); resize: none; height: 76px; line-height: 1.6; }
-.ai-search-box textarea::placeholder { color: var(--text3); }
-.search-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px 12px; gap: 10px; }
-.quick-tags { display: flex; gap: 5px; flex-wrap: wrap; flex: 1; }
-.qtag { font-size: 11px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--border); color: var(--text3); cursor: pointer; transition: all .15s; background: transparent; font-family: 'Noto Sans TC', sans-serif; white-space: nowrap; }
-.qtag:hover { border-color: var(--accent); color: var(--accent); }
-.search-btn { background: var(--accent); color: #fff; border: none; padding: 9px 18px; border-radius: 99px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 5px; transition: all .2s; white-space: nowrap; flex-shrink: 0; }
-.search-btn:hover { background: #ff8556; }
-.search-btn:disabled { opacity: .5; pointer-events: none; }
+/* ═══════════════════════════════
+   LAYOUT WRAPPER
+═══════════════════════════════ */
+#app { position: relative; z-index: 1; min-height: 100vh; }
+.page { display: none; }
+.page.active { display: block; }
 
-/* FILTER */
-.filter-bar { display: none; }
-.filter-pill { display: flex; align-items: center; gap: 5px; padding: 6px 13px; border-radius: 99px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); cursor: pointer; transition: all .15s; background: var(--card); font-family: 'Noto Sans TC', sans-serif; }
-.filter-pill:hover { border-color: var(--border2); color: var(--text); }
-.filter-pill.active { border-color: var(--accent); color: var(--accent); background: rgba(255,107,53,0.08); }
-.filter-dot { width: 7px; height: 7px; border-radius: 50%; }
-.radius-select { background: var(--card); border: 1px solid var(--border); color: var(--text2); padding: 6px 12px; border-radius: 99px; font-size: 12px; font-family: 'Noto Sans TC', sans-serif; outline: none; cursor: pointer; margin-left: auto; }
-.view-toggle { display: flex; background: var(--card); border: 1px solid var(--border); border-radius: 99px; padding: 3px; gap: 2px; }
-.vtab { padding: 4px 12px; border-radius: 99px; font-size: 12px; cursor: pointer; transition: all .15s; color: var(--text3); border: none; background: none; font-family: 'Noto Sans TC', sans-serif; }
-.vtab.active { background: var(--bg3); color: var(--text); }
+/* ═══════════════════════════════
+   SETUP PAGE
+═══════════════════════════════ */
+#page-setup {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.setup-card {
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: var(--r-xl); padding: 44px 36px;
+  max-width: 440px; width: 100%;
+  box-shadow: var(--shadow);
+}
+.setup-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px; font-weight: 700;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+.setup-logo em { color: var(--accent); font-style: italic; }
+.setup-tagline { font-size: 13px; color: var(--text3); margin-bottom: 36px; letter-spacing: .04em; }
+.setup-label { font-size: 12px; color: var(--text2); margin-bottom: 8px; letter-spacing: .06em; text-transform: uppercase; }
+.setup-input {
+  width: 100%; background: var(--bg3);
+  border: 1px solid var(--border2); border-radius: var(--r-md);
+  padding: 14px 16px; color: var(--text);
+  outline: none; transition: border-color .2s;
+  margin-bottom: 8px; letter-spacing: .02em;
+}
+.setup-input:focus { border-color: rgba(255,95,46,.5); }
+.setup-hint { font-size: 12px; color: var(--text3); margin-bottom: 28px; line-height: 1.6; }
+.setup-hint a { color: var(--accent); }
+.setup-err { font-size: 12px; color: #ff5f5f; margin-bottom: 12px; display: none; }
+.btn-primary {
+  width: 100%; background: var(--accent); color: #fff;
+  border: none; border-radius: var(--r-md); padding: 14px;
+  font-size: 15px; font-weight: 500; cursor: pointer;
+  transition: all .2s; letter-spacing: .02em;
+}
+.btn-primary:hover { background: #ff7a52; transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); opacity: .9; }
 
-/* RESULTS */
-.results-area { max-width: 900px; margin: 0 auto; padding: 0 24px 60px; position: relative; z-index: 1; }
-.results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.results-title { font-size: 13px; color: var(--text3); }
-.results-title strong { color: var(--text2); }
+/* ═══════════════════════════════
+   MAIN APP HEADER
+═══════════════════════════════ */
+#page-main { padding-bottom: 80px; }
+.app-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,10,13,.88); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+}
+.app-header-inner {
+  max-width: 860px; margin: 0 auto;
+  height: 56px; display: flex; align-items: center; justify-content: space-between;
+}
+.app-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 6px;
+}
+.app-logo em { color: var(--accent); font-style: italic; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.loc-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 99px; padding: 5px 12px;
+  font-size: 12px; color: var(--text2); cursor: pointer;
+  transition: all .2s; max-width: 140px; overflow: hidden;
+  white-space: nowrap; text-overflow: ellipsis;
+}
+.loc-chip:hover { border-color: var(--border2); color: var(--text); }
+.loc-pulse {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--teal); flex-shrink: 0;
+  box-shadow: 0 0 0 0 rgba(13,212,168,.4);
+  animation: locPulse 2s infinite;
+}
+@keyframes locPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(13,212,168,.4); }
+  70%  { box-shadow: 0 0 0 6px rgba(13,212,168,0); }
+  100% { box-shadow: 0 0 0 0 rgba(13,212,168,0); }
+}
 
-/* AI CARD */
-.ai-card { background: linear-gradient(135deg, rgba(255,107,53,0.06), rgba(0,201,167,0.04)); border: 1px solid rgba(255,107,53,0.2); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; display: none; }
-.ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.ai-title { font-size: 12px; font-weight: 500; color: var(--accent); letter-spacing: .04em; }
-.ai-thinking { font-size: 13px; color: var(--text2); line-height: 1.7; }
-.ai-thinking em { color: var(--accent2); font-style: normal; }
-.loading-bar { height: 2px; background: var(--bg3); border-radius: 99px; margin-top: 10px; overflow: hidden; display: none; }
-.loading-bar.active { display: block; }
-.loading-bar-inner { height: 100%; width: 30%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; animation: loadSlide 1.2s ease-in-out infinite; }
-@keyframes loadSlide { 0%{transform:translateX(-100%)} 100%{transform:translateX(400%)} }
+/* ═══════════════════════════════
+   MAIN CONTENT AREA
+═══════════════════════════════ */
+.main-body { max-width: 860px; margin: 0 auto; padding: 0 16px; }
 
-/* RESTAURANT CARD */
-.rest-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; transition: all .25s; cursor: pointer; position: relative; }
-.rest-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
-.rest-card.top-pick { border-color: rgba(255,107,53,0.3); }
-.rest-card.top-pick::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
-.card-inner { display: flex; }
-.card-img-wrap { width: 110px; flex-shrink: 0; position: relative; overflow: hidden; background: var(--bg3); }
-.card-img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 120px; }
-.card-img-placeholder { width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
-.rank-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); color: var(--text); font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 99px; }
-.card-body { flex: 1; padding: 14px 16px; }
-.card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-.card-name { font-size: 15px; font-weight: 500; margin-bottom: 2px; line-height: 1.3; }
-.card-type { font-size: 11px; color: var(--text3); }
-.score-wrap { text-align: right; flex-shrink: 0; margin-left: 10px; }
-.score-num { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--accent2); line-height: 1; }
-.score-label { font-size: 10px; color: var(--text3); }
-.stars { display: flex; gap: 1px; margin-bottom: 2px; justify-content: flex-end; }
-.star { font-size: 10px; }
-.star.full { color: var(--accent2); }
-.star.empty { color: var(--text3); opacity: .4; }
-.card-desc { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
-.ctag { font-size: 10px; padding: 2px 8px; border-radius: 99px; }
-.ctag-orange { background: rgba(255,107,53,0.12); color: #ff9a7a; }
-.ctag-teal { background: rgba(0,201,167,0.1); color: var(--teal); }
-.ctag-yellow { background: rgba(255,170,0,0.1); color: var(--accent2); }
-.ctag-gray { background: var(--bg3); color: var(--text3); }
-.card-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.meta-item { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 3px; }
-.open-badge { color: var(--teal); font-size: 10px; padding: 2px 6px; background: rgba(0,201,167,0.1); border-radius: 99px; }
-.closed-badge { color: #ff6b6b; font-size: 10px; padding: 2px 6px; background: rgba(255,107,107,0.1); border-radius: 99px; }
+/* ═══════════════════════════════
+   SEARCH SECTION
+═══════════════════════════════ */
+.search-section { padding: 20px 0 14px; }
+.search-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+}
+.search-box:focus-within {
+  border-color: rgba(255,95,46,.35);
+  box-shadow: 0 0 0 3px rgba(255,95,46,.07);
+}
+.search-textarea {
+  width: 100%; background: transparent; border: none; outline: none;
+  padding: 16px 18px 10px; color: var(--text); resize: none;
+  height: 70px; line-height: 1.6;
+}
+.search-textarea::placeholder { color: var(--text3); }
+.search-footer {
+  display: flex; align-items: center;
+  padding: 8px 12px 12px; gap: 8px;
+}
+.quick-tags {
+  display: flex; gap: 5px; flex: 1;
+  overflow-x: auto; scrollbar-width: none;
+}
+.quick-tags::-webkit-scrollbar { display: none; }
+.qtag {
+  flex-shrink: 0; background: transparent;
+  border: 1px solid var(--border); border-radius: 99px;
+  padding: 5px 11px; font-size: 12px; color: var(--text3);
+  cursor: pointer; white-space: nowrap;
+  transition: all .15s; touch-action: manipulation;
+}
+.qtag:hover, .qtag:active { border-color: var(--accent); color: var(--accent); }
+.search-go {
+  flex-shrink: 0; background: var(--accent); color: #fff;
+  border: none; border-radius: 99px;
+  padding: 9px 18px; font-size: 13px; font-weight: 500;
+  cursor: pointer; touch-action: manipulation;
+  transition: all .2s; white-space: nowrap;
+  display: flex; align-items: center; gap: 5px;
+}
+.search-go:hover { background: #ff7a52; }
+.search-go:disabled { opacity: .5; pointer-events: none; }
 
-
-/* LOCATION BAR */
-.loc-bar { max-width: 900px; margin: 0 auto; padding: 0 24px 14px; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
-.loc-input-wrap { display: flex; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; transition: border-color .2s; }
-.loc-input-wrap:focus-within { border-color: rgba(0,201,167,0.4); }
-.loc-input { flex: 1; background: transparent; border: none; outline: none; font-size: 16px; color: var(--text); font-family: 'Noto Sans TC', sans-serif; }
+/* ═══════════════════════════════
+   LOCATION BAR
+═══════════════════════════════ */
+.loc-bar { padding: 0 0 12px; }
+.loc-input-row {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 11px 14px;
+  display: flex; align-items: center; gap: 8px;
+  transition: border-color .2s;
+  margin-bottom: 8px;
+}
+.loc-input-row:focus-within { border-color: rgba(13,212,168,.35); }
+.loc-input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--text); min-width: 0;
+}
 .loc-input::placeholder { color: var(--text3); }
 .loc-btn-row { display: flex; gap: 8px; }
-.loc-auto-btn { flex: 1; background: var(--teal); color: #0d0d0f; border: none; padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 500; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; text-align: center; transition: all .2s; }
-.loc-auto-btn:hover { opacity: .85; }
-.loc-search-btn { flex: 1; background: var(--bg3); color: var(--text2); border: 1px solid var(--border); padding: 10px 14px; border-radius: 12px; font-size: 13px; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; text-align: center; transition: all .2s; }
-.loc-search-btn:hover { border-color: var(--border2); color: var(--text); }
+.btn-loc-search {
+  flex: 1; background: var(--bg3); color: var(--text2);
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  padding: 10px; font-size: 13px; cursor: pointer;
+  touch-action: manipulation; transition: all .15s; text-align: center;
+}
+.btn-loc-search:hover { border-color: var(--border2); color: var(--text); }
+.btn-loc-auto {
+  flex: 1; background: var(--teal); color: #0a0a0d;
+  border: none; border-radius: var(--r-sm);
+  padding: 10px; font-size: 13px; font-weight: 500;
+  cursor: pointer; touch-action: manipulation;
+  transition: opacity .15s; text-align: center;
+}
+.btn-loc-auto:hover { opacity: .85; }
+.btn-loc-auto:disabled { opacity: .5; pointer-events: none; }
 
-
-/* CONTROL PANEL */
-.control-panel { max-width: 900px; margin: 0 auto; padding: 0 24px 16px; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; }
-.control-row { display: flex; align-items: center; gap: 10px; }
-.control-label { font-size: 12px; color: var(--text3); flex-shrink: 0; width: 28px; letter-spacing: .02em; }
-.control-pills { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-
-@media (max-width: 600px) {
-  .control-panel { padding: 0 14px 12px; gap: 8px; }
-  .control-row { gap: 8px; }
-  .control-label { font-size: 12px; width: 28px; }
-  .control-pills { gap: 6px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  .control-pills::-webkit-scrollbar { display: none; }
-  .sort-btn { padding: 8px 14px; font-size: 13px; min-height: 36px; flex-shrink: 0; white-space: nowrap; }
-  .filter-pill { padding: 8px 14px; font-size: 13px; min-height: 36px; flex-shrink: 0; white-space: nowrap; }
-  .radius-select { padding: 8px 12px; font-size: 13px; min-height: 36px; flex-shrink: 0; }
+/* ═══════════════════════════════
+   CONTROL PANEL (Sort + Filter)
+═══════════════════════════════ */
+.control-panel { padding: 0 0 14px; display: flex; flex-direction: column; gap: 8px; }
+.control-row { display: flex; align-items: center; gap: 8px; }
+.ctrl-label { font-size: 11px; color: var(--text3); flex-shrink: 0; width: 26px; letter-spacing: .04em; }
+.ctrl-pills { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; align-items: center; }
+.ctrl-pills::-webkit-scrollbar { display: none; }
+.sort-pill, .cat-pill {
+  flex-shrink: 0; background: var(--card);
+  border: 1px solid var(--border); border-radius: 99px;
+  padding: 6px 13px; font-size: 12px; color: var(--text2);
+  cursor: pointer; white-space: nowrap;
+  transition: all .15s; touch-action: manipulation;
+}
+.sort-pill:hover, .cat-pill:hover { border-color: var(--border2); color: var(--text); }
+.sort-pill.on { border-color: var(--accent); color: var(--accent); background: rgba(255,95,46,.08); }
+.cat-pill.on  { border-color: var(--accent2); color: var(--accent2); background: rgba(255,176,32,.08); }
+.cat-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.radius-sel {
+  flex-shrink: 0; background: var(--card);
+  border: 1px solid var(--border); border-radius: 99px;
+  padding: 6px 12px; font-size: 12px; color: var(--text2);
+  outline: none; cursor: pointer;
 }
 
-/* SORT BAR */
-.sort-bar { display: none; }
-.sort-label { display: none; }
-.filter-bar { display: none; }
-.sort-btn { padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); cursor: pointer; transition: all .15s; background: var(--card); font-family: 'Noto Sans TC', sans-serif; display: flex; align-items: center; gap: 5px; }
-.sort-btn:hover { border-color: var(--border2); color: var(--text); }
-.sort-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(255,107,53,0.08); }
-
-
-/* MOBILE OPTIMIZATIONS */
-* { -webkit-tap-highlight-color: transparent; }
-body { -webkit-overflow-scrolling: touch; touch-action: pan-y; }
-
-
-/* ── GLOBAL MOBILE RESET ── */
-@media (max-width: 600px) {
-  html, body { overflow-x: hidden; width: 100%; }
-
-  header { padding: 0 14px; }
-  .header-inner { height: 52px; gap: 8px; }
-  .logo { font-size: 18px; gap: 6px; }
-  .logo-sub { display: none; }
-  .loc-pill { padding: 5px 10px; font-size: 11px; max-width: 130px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-  .view-toggle { display: none; }
-
-  /* SEARCH */
-  .search-wrap { padding: 16px 14px 10px; }
-  .search-label { font-size: 12px; margin-bottom: 8px; }
-  .ai-search-box textarea { height: 68px; font-size: 16px; padding: 14px 14px 8px; }
-  .search-footer { padding: 8px 10px 12px; flex-wrap: nowrap; gap: 8px; }
-  .quick-tags { gap: 5px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 2px; scrollbar-width: none; }
-  .quick-tags::-webkit-scrollbar { display: none; }
-  .qtag { font-size: 12px; padding: 7px 12px; white-space: nowrap; min-height: 34px; flex-shrink: 0; }
-  .search-btn { padding: 10px 16px; font-size: 14px; min-height: 40px; flex-shrink: 0; }
-
-  /* LOCATION BAR */
-  .loc-bar { padding: 0 14px 10px; gap: 8px; }
-  .loc-input-wrap { padding: 10px 12px; border-radius: 12px; }
-  .loc-input { font-size: 14px; }
-  .loc-btn-row { gap: 8px; }
-  .loc-search-btn { padding: 11px 10px; font-size: 13px; min-height: 42px; border-radius: 12px; }
-  .loc-auto-btn { padding: 11px 10px; font-size: 13px; min-height: 42px; border-radius: 12px; }
-
-  
-/* CONTROL PANEL */
-.control-panel { max-width: 900px; margin: 0 auto; padding: 0 24px 16px; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; }
-.control-row { display: flex; align-items: center; gap: 10px; }
-.control-label { font-size: 12px; color: var(--text3); flex-shrink: 0; width: 28px; letter-spacing: .02em; }
-.control-pills { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-
-@media (max-width: 600px) {
-  .control-panel { padding: 0 14px 12px; gap: 8px; }
-  .control-row { gap: 8px; }
-  .control-label { font-size: 12px; width: 28px; }
-  .control-pills { gap: 6px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  .control-pills::-webkit-scrollbar { display: none; }
-  .sort-btn { padding: 8px 14px; font-size: 13px; min-height: 36px; flex-shrink: 0; white-space: nowrap; }
-  .filter-pill { padding: 8px 14px; font-size: 13px; min-height: 36px; flex-shrink: 0; white-space: nowrap; }
-  .radius-select { padding: 8px 12px; font-size: 13px; min-height: 36px; flex-shrink: 0; }
-}
-
-/* SORT BAR */
-  .sort-bar { padding: 0 14px 10px; gap: 6px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  .sort-bar::-webkit-scrollbar { display: none; }
-  .sort-label { flex-shrink: 0; font-size: 13px; }
-  .sort-btn { padding: 8px 14px; font-size: 13px; min-height: 36px; flex-shrink: 0; white-space: nowrap; }
-
-  /* FILTER BAR */
-  .filter-bar { padding: 0 14px 10px; gap: 6px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  .filter-bar::-webkit-scrollbar { display: none; }
-  .filter-pill { padding: 8px 14px; font-size: 13px; min-height: 36px; flex-shrink: 0; white-space: nowrap; }
-  .radius-select { padding: 8px 12px; font-size: 13px; min-height: 36px; flex-shrink: 0; }
-
-  /* RESULTS */
-  .results-area { padding: 0 14px 100px; }
-  .results-header { margin-bottom: 10px; }
-  .results-title { font-size: 12px; }
-
-  /* CARDS */
-  .rest-card { border-radius: 14px; margin-bottom: 10px; }
-  .card-img-wrap { width: 100px; }
-  .card-img, .card-img-placeholder { min-height: 118px; }
-  .card-img-placeholder { font-size: 32px; }
-  .rank-badge { font-size: 10px; padding: 2px 7px; top: 7px; left: 7px; }
-  .card-body { padding: 12px 14px; }
-  .card-name { font-size: 15px; }
-  .card-type { font-size: 11px; }
-  .score-num { font-size: 22px; }
-  .score-label { font-size: 10px; }
-  .stars { gap: 1px; }
-  .star { font-size: 11px; }
-  .card-desc { font-size: 12px; margin-bottom: 7px; }
-  .card-tags { gap: 4px; margin-bottom: 7px; }
-  .ctag { font-size: 10px; padding: 3px 8px; }
-  .card-meta { gap: 10px; flex-wrap: nowrap; overflow: hidden; }
-  .meta-item { font-size: 11px; white-space: nowrap; }
-  .open-badge, .closed-badge { font-size: 10px; padding: 2px 6px; }
-
-  /* MODAL */
-  .modal-overlay { align-items: flex-end; }
-  .modal-box { border-radius: 20px 20px 0 0; padding: 20px 16px; max-height: 85vh; }
-  .modal-name { font-size: 17px; }
-  .modal-row { font-size: 13px; padding: 10px 0; }
-
-  /* AI PANEL */
-  .ai-msg { font-size: 13px; padding: 10px 12px; max-width: 88%; }
-  .ai-text-input { font-size: 14px; padding: 9px 14px; }
-
-  /* BOTTOM NAV */
-  .bottom-nav { padding: 6px 0 env(safe-area-inset-bottom, 10px); }
-  .bnav-btn { font-size: 10px; padding: 4px 0; }
-  .bnav-icon { font-size: 22px; }
-
-  /* RECENT */
-  .recent-wrap { padding: 0 14px 8px; }
-  .recent-tag { font-size: 11px; padding: 5px 10px; }
-}
-
-/* Touch-friendly tap targets */
-.rest-card { cursor: pointer; -webkit-user-select: none; user-select: none; }
-.filter-pill, .sort-btn, .qtag, .search-btn, .loc-auto-btn, .loc-search-btn {
-  -webkit-user-select: none; user-select: none;
-  touch-action: manipulation;
-}
-.rest-card:active { transform: scale(0.99); opacity: .92; transition: transform .1s, opacity .1s; }
-.filter-pill:active, .sort-btn:active { opacity: .7; transform: scale(0.97); }
-
-
-/* BOTTOM NAV */
-.bottom-nav { display: none; }
-@media (max-width: 600px) {
-  .bottom-nav {
-    display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-    background: rgba(13,13,15,0.92); backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border); padding: 8px 0 env(safe-area-inset-bottom, 8px);
-  }
-  .bnav-btn { flex: 1; max-width: 50%; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; border: none; background: none; color: var(--text3); font-size: 10px; font-family: 'Noto Sans TC', sans-serif; cursor: pointer; transition: color .15s; touch-action: manipulation; }
-  .bnav-btn.active { color: var(--accent); }
-  .bnav-icon { font-size: 20px; line-height: 1; }
-}
-
-/* FAB AI BUTTON */
-.fab-ai {
-  display: none;
-}
-@media (max-width: 600px) {
-  .fab-ai { display: none; } /* shown via JS */
-}
-
-/* CARD FAV BUTTON */
-.card-fav-btn {
-  background: none; border: none; font-size: 16px; cursor: pointer;
-  padding: 2px 4px; margin-left: auto; touch-action: manipulation;
-  line-height: 1; flex-shrink: 0;
-}
-.card-fav-btn:active { transform: scale(1.3); transition: transform .1s; }
-
-/* FAVORITES */
-.fav-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px; touch-action: manipulation; line-height: 1; }
-.fav-panel { position: fixed; inset: 0; z-index: 300; background: var(--bg); transform: translateX(100%); transition: transform .35s cubic-bezier(.32,.72,0,1); overflow-y: auto; }
-.fav-panel.open { transform: translateX(0); }
-.fav-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg); z-index: 1; }
-.fav-title { font-size: 18px; font-weight: 500; }
-.fav-close { background: var(--bg3); border: none; color: var(--text2); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-.fav-list { padding: 16px; }
-.fav-empty { text-align: center; padding: 60px 20px; color: var(--text3); }
-.fav-item { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
-.fav-item-icon { font-size: 28px; flex-shrink: 0; }
-.fav-item-body { flex: 1; }
-.fav-item-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
-.fav-item-meta { font-size: 12px; color: var(--text3); }
-.fav-remove { background: none; border: none; color: var(--text3); font-size: 18px; cursor: pointer; padding: 4px; }
-
-/* RECENT SEARCHES */
-.recent-wrap { padding: 0 16px 8px; }
+/* ═══════════════════════════════
+   RECENT SEARCHES
+═══════════════════════════════ */
+.recent-section { padding: 0 0 10px; display: none; }
 .recent-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; letter-spacing: .04em; }
 .recent-tags { display: flex; gap: 5px; flex-wrap: wrap; }
-.recent-tag { font-size: 11px; padding: 4px 10px; border-radius: 99px; background: var(--bg3); color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 5px; border: none; font-family: 'Noto Sans TC', sans-serif; touch-action: manipulation; }
-.recent-tag:active { opacity: .7; }
-.recent-x { color: var(--text3); font-size: 10px; }
+.recent-tag {
+  background: var(--bg3); border: none; border-radius: 99px;
+  padding: 4px 10px; font-size: 11px; color: var(--text2);
+  cursor: pointer; display: flex; align-items: center; gap: 5px;
+  touch-action: manipulation; transition: all .15s;
+}
+.recent-tag:hover { color: var(--text); }
+.recent-tag-x { color: var(--text3); font-size: 10px; line-height: 1; }
 
-/* CLEAR SEARCH BTN */
-.clear-btn { background: none; border: none; color: var(--text3); font-size: 16px; cursor: pointer; padding: 0 4px; display: none; touch-action: manipulation; }
+/* ═══════════════════════════════
+   RESULTS HEADER
+═══════════════════════════════ */
+.results-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 0 12px;
+}
+.results-count { font-size: 12px; color: var(--text3); }
+.results-count strong { color: var(--text2); }
 
-/* NO MORE RESULTS */
-.no-more { text-align: center; padding: 20px; font-size: 12px; color: var(--text3); }
+/* ═══════════════════════════════
+   RESTAURANT CARD
+═══════════════════════════════ */
+.card-list { display: flex; flex-direction: column; gap: 10px; }
+.r-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden;
+  cursor: pointer; transition: all .22s;
+  position: relative;
+}
+.r-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: var(--shadow); }
+.r-card:active { transform: scale(.99); opacity: .92; }
+.r-card.is-top { border-color: rgba(255,95,46,.25); }
+.r-card.is-top::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.r-card-inner { display: flex; min-height: 120px; }
 
-/* EMPTY / LOADING */
-.state-box { text-align: center; padding: 60px 20px; color: var(--text3); }
-.state-icon { font-size: 44px; margin-bottom: 14px; opacity: .5; }
+/* Card image */
+.r-card-img {
+  width: 108px; flex-shrink: 0; position: relative;
+  background: var(--bg3); overflow: hidden;
+}
+.r-card-img img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .3s;
+}
+.r-card:hover .r-card-img img { transform: scale(1.04); }
+.r-card-emoji {
+  width: 100%; height: 100%; min-height: 120px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px;
+}
+.r-card-rank {
+  position: absolute; top: 8px; left: 8px;
+  background: rgba(0,0,0,.72); backdrop-filter: blur(4px);
+  color: var(--text); font-size: 10px; font-weight: 500;
+  padding: 2px 7px; border-radius: 99px;
+}
+
+/* Card body */
+.r-card-body { flex: 1; padding: 12px 14px; display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.r-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.r-card-name { font-size: 15px; font-weight: 500; line-height: 1.3; }
+.r-card-type { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.r-score-wrap { text-align: right; flex-shrink: 0; margin-left: 8px; }
+.r-score {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px; font-weight: 700; color: var(--accent2); line-height: 1;
+}
+.r-score-label { font-size: 9px; color: var(--text3); letter-spacing: .04em; }
+.r-stars { display: flex; justify-content: flex-end; gap: 1px; margin-bottom: 2px; }
+.r-star { font-size: 10px; color: var(--text3); }
+.r-star.on { color: var(--accent2); }
+
+/* Card address */
+.r-card-addr { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* AI reason */
+.r-ai-reason {
+  background: linear-gradient(135deg, rgba(255,95,46,.07), rgba(255,176,32,.04));
+  border: 1px solid rgba(255,95,46,.12);
+  border-radius: var(--r-sm); padding: 7px 10px; margin-bottom: 7px;
+  font-size: 11px; color: var(--text2); line-height: 1.5;
+  display: none;
+}
+.r-ai-reason.visible { display: block; }
+.r-ai-reason-icon { font-size: 10px; color: var(--accent); margin-right: 4px; }
+
+/* Card badges */
+.r-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 7px; }
+.badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 99px;
+  white-space: nowrap; font-weight: 400;
+}
+.badge-orange { background: rgba(255,95,46,.12); color: #ff9a7a; }
+.badge-teal   { background: rgba(13,212,168,.1); color: var(--teal); }
+.badge-yellow { background: rgba(255,176,32,.1); color: var(--accent2); }
+.badge-pink   { background: rgba(255,77,143,.1); color: var(--pink); }
+.badge-blue   { background: rgba(77,143,255,.1); color: var(--blue); }
+.badge-gray   { background: var(--bg3); color: var(--text3); }
+
+/* Card meta */
+.r-card-meta { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; overflow: hidden; margin-top: auto; }
+.r-meta-item { font-size: 11px; color: var(--text3); white-space: nowrap; display: flex; align-items: center; gap: 3px; }
+.r-open  { font-size: 10px; padding: 2px 6px; border-radius: 99px; background: rgba(13,212,168,.1); color: var(--teal); }
+.r-close { font-size: 10px; padding: 2px 6px; border-radius: 99px; background: rgba(255,95,95,.1); color: #ff6b6b; }
+.r-fav-btn {
+  margin-left: auto; flex-shrink: 0;
+  background: none; border: none; font-size: 17px;
+  cursor: pointer; padding: 2px 4px;
+  touch-action: manipulation; line-height: 1;
+  transition: transform .15s;
+}
+.r-fav-btn:active { transform: scale(1.35); }
+
+/* AI loading badge on card */
+.r-ai-loading {
+  display: none; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--accent); margin-bottom: 7px;
+}
+.r-ai-loading.visible { display: flex; }
+.ai-dots span {
+  display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--accent); margin: 0 1px;
+  animation: aiDot .8s infinite;
+}
+.ai-dots span:nth-child(2) { animation-delay: .15s; }
+.ai-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes aiDot { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-4px);opacity:1} }
+
+/* ═══════════════════════════════
+   STATE BOXES
+═══════════════════════════════ */
+.state-box { text-align: center; padding: 56px 20px; }
+.state-icon { font-size: 42px; margin-bottom: 14px; opacity: .4; }
 .state-title { font-size: 15px; color: var(--text2); margin-bottom: 6px; }
-.state-sub { font-size: 13px; line-height: 1.6; }
-.spinner { width: 32px; height: 32px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+.state-sub { font-size: 13px; color: var(--text3); line-height: 1.6; }
+.spinner {
+  width: 28px; height: 28px; margin: 0 auto 14px;
+  border: 2px solid var(--border2); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .7s linear infinite;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
+.no-more { text-align: center; padding: 18px; font-size: 12px; color: var(--text3); }
 
-/* TOAST */
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg3); border: 1px solid var(--border2); border-radius: 99px; padding: 10px 20px; font-size: 13px; color: var(--text); z-index: 999; opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; }
+/* ═══════════════════════════════
+   DETAIL MODAL
+═══════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,.72);
+  display: flex; align-items: flex-end; justify-content: center;
+  cursor: pointer; opacity: 0; pointer-events: none;
+  transition: opacity .22s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal-sheet {
+  background: var(--card2); border: 1px solid var(--border2);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  width: 100%; max-width: 600px; max-height: 88vh;
+  overflow-y: auto; cursor: default;
+  transform: translateY(100%);
+  transition: transform .28s cubic-bezier(.32,.72,0,1);
+  -webkit-overflow-scrolling: touch;
+}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-handle {
+  width: 36px; height: 4px; background: var(--border2);
+  border-radius: 99px; margin: 12px auto 0;
+}
+.modal-head {
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  position: sticky; top: 0; background: var(--card2); z-index: 1;
+}
+.modal-name { font-size: 19px; font-weight: 500; line-height: 1.3; }
+.modal-subtype { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.modal-head-right { display: flex; gap: 8px; align-items: center; flex-shrink: 0; margin-left: 10px; }
+.modal-fav-btn {
+  background: var(--bg3); border: 1px solid var(--border);
+  width: 38px; height: 38px; border-radius: 50%;
+  font-size: 18px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  touch-action: manipulation; transition: all .15s;
+}
+.modal-fav-btn:active { transform: scale(1.2); }
+.modal-close {
+  background: var(--bg3); border: 1px solid var(--border2);
+  width: 38px; height: 38px; border-radius: 50%; color: var(--text);
+  font-size: 18px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  touch-action: manipulation; font-weight: 300;
+}
+.modal-body { padding: 16px 20px 24px; }
+.modal-ai-box {
+  background: linear-gradient(135deg,rgba(255,95,46,.08),rgba(255,176,32,.05));
+  border: 1px solid rgba(255,95,46,.18);
+  border-radius: var(--r-md); padding: 14px 16px; margin-bottom: 16px;
+  display: none;
+}
+.modal-ai-box.visible { display: block; }
+.modal-ai-label { font-size: 11px; color: var(--accent); letter-spacing: .05em; margin-bottom: 6px; font-weight: 500; }
+.modal-ai-text { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.modal-ai-text em { color: var(--accent2); font-style: normal; }
+.modal-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 11px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.modal-row:last-child { border-bottom: none; }
+.modal-row-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; width: 20px; text-align: center; }
+.modal-row-val { color: var(--text2); flex: 1; line-height: 1.6; }
+.modal-row-action { color: var(--teal); font-size: 11px; flex-shrink: 0; }
+.modal-row.clickable { cursor: pointer; }
+.modal-row.clickable:active { background: rgba(13,212,168,.05); border-radius: var(--r-sm); margin: 0 -8px; padding: 11px 8px; }
+.modal-nav-btn {
+  width: 100%; background: var(--teal); color: #0a0a0d;
+  border: none; border-radius: var(--r-md); padding: 14px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  touch-action: manipulation; margin-top: 16px;
+  transition: opacity .15s;
+}
+.modal-nav-btn:hover { opacity: .88; }
+
+/* ═══════════════════════════════
+   FAVORITES PANEL
+═══════════════════════════════ */
+.fav-panel {
+  position: fixed; inset: 0; z-index: 300;
+  background: var(--bg); overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform .32s cubic-bezier(.32,.72,0,1);
+  -webkit-overflow-scrolling: touch;
+}
+.fav-panel.open { transform: translateX(0); }
+.fav-panel-head {
+  position: sticky; top: 0; background: var(--bg);
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; z-index: 1;
+}
+.fav-panel-title { font-size: 18px; font-weight: 500; }
+.fav-close {
+  background: var(--bg3); border: 1px solid var(--border);
+  width: 36px; height: 36px; border-radius: 50%; color: var(--text);
+  font-size: 16px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+}
+.fav-body { padding: 16px; }
+.fav-empty { text-align: center; padding: 60px 20px; color: var(--text3); }
+.fav-empty-icon { font-size: 44px; margin-bottom: 14px; opacity: .35; }
+
+/* ═══════════════════════════════
+   BOTTOM NAV
+═══════════════════════════════ */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: rgba(10,10,13,.92); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex; padding: 6px 0;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+}
+.bnav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 0; background: none; border: none; color: var(--text3);
+  font-size: 10px; cursor: pointer; touch-action: manipulation;
+  transition: color .15s; letter-spacing: .02em;
+}
+.bnav-btn.on { color: var(--accent); }
+.bnav-icon { font-size: 22px; line-height: 1; }
+
+/* ═══════════════════════════════
+   TOAST
+═══════════════════════════════ */
+.toast {
+  position: fixed; bottom: 80px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 99px; padding: 10px 20px;
+  font-size: 13px; color: var(--text); z-index: 999;
+  opacity: 0; pointer-events: none;
+  transition: all .28s; white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* DETAIL MODAL */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; display: flex; align-items: flex-end; justify-content: center; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
-.modal-overlay.show { opacity: 1; pointer-events: auto; }
-.modal-box { cursor: default; border-radius: 24px 24px 0 0; transform: translateY(100%); transition: transform .25s cubic-bezier(.32,.72,0,1); }
-.modal-overlay.show .modal-box { transform: translateY(0); }
-/* modal show handled by opacity */
-.modal-box { background: var(--card); border: 1px solid var(--border2); border-radius: 24px 24px 0 0; width: 100%; max-width: 600px; max-height: 80vh; overflow-y: auto; padding: 24px; }
-.modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-.modal-name { font-size: 20px; font-weight: 500; }
-.modal-close { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; touch-action: manipulation; flex-shrink: 0; }
-.modal-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-.modal-row[onclick]:active { background: rgba(0,201,167,0.06); border-radius: 8px; margin: 0 -8px; padding: 10px 8px; }
-.modal-row:last-child { border-bottom: none; }
-.modal-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
-.modal-val { color: var(--text2); flex: 1; line-height: 1.5; }
-.modal-link { color: var(--accent); text-decoration: none; }
+/* ═══════════════════════════════
+   MAP VIEW
+═══════════════════════════════ */
+#map-view { display: none; }
+#map-view.active { display: block; height: 280px; }
+#map { height: 100%; }
+.map-toggle {
+  display: flex; background: var(--card); border: 1px solid var(--border);
+  border-radius: 99px; padding: 3px; gap: 2px;
+}
+.mtab {
+  padding: 4px 13px; border-radius: 99px; font-size: 12px;
+  cursor: pointer; color: var(--text3); border: none; background: none;
+  transition: all .15s; touch-action: manipulation;
+}
+.mtab.on { background: var(--bg3); color: var(--text); }
 
-.fade-in { opacity: 0; transform: translateY(12px); animation: fadeUp .35s ease forwards; }
-@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
-.fade-in:nth-child(1){animation-delay:.04s}
-.fade-in:nth-child(2){animation-delay:.09s}
-.fade-in:nth-child(3){animation-delay:.14s}
-.fade-in:nth-child(4){animation-delay:.19s}
-.fade-in:nth-child(5){animation-delay:.24s}
+/* ═══════════════════════════════
+   ANIMATIONS
+═══════════════════════════════ */
+.fade-up {
+  opacity: 0; transform: translateY(12px);
+  animation: fadeUp .35s ease forwards;
+}
+@keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+.fade-up:nth-child(1){animation-delay:.04s}
+.fade-up:nth-child(2){animation-delay:.08s}
+.fade-up:nth-child(3){animation-delay:.12s}
+.fade-up:nth-child(4){animation-delay:.16s}
+.fade-up:nth-child(5){animation-delay:.20s}
+.fade-up:nth-child(6){animation-delay:.24s}
+
+/* ═══════════════════════════════
+   DESKTOP
+═══════════════════════════════ */
+@media (min-width: 700px) {
+  .main-body { padding: 0 24px; }
+  .bottom-nav { display: none; }
+  .app-header-inner { height: 60px; }
+  .app-logo { font-size: 22px; }
+  .search-section { padding: 28px 0 16px; }
+  .r-card-img { width: 120px; }
+  .r-card-emoji, .r-card-img img { min-height: 130px; }
+  .r-card-name { font-size: 16px; }
+  /* Desktop nav in header */
+  .desktop-nav { display: flex; gap: 6px; }
+  .desktop-nav-btn {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 99px; padding: 6px 14px;
+    font-size: 12px; color: var(--text2); cursor: pointer;
+    transition: all .15s;
+  }
+  .desktop-nav-btn:hover { border-color: var(--border2); color: var(--text); }
+  .desktop-nav-btn.on { border-color: var(--accent); color: var(--accent); }
+}
+@media (max-width: 699px) {
+  .desktop-nav { display: none; }
+}
 </style>
 </head>
 <body>
 
-<div class="glow-orb orb1"></div>
-<div class="glow-orb orb2"></div>
-
-<!-- MAIN APP -->
-<div id="main-app">
-  <header>
-    <div class="header-inner">
-      <div class="logo">美食<span>雷達</span><div class="logo-sub">FOOD RADAR</div></div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="view-toggle">
-          <button class="vtab active" onclick="switchView('list',this)">列表</button>
-          <button class="vtab" onclick="switchView('map',this)">地圖</button>
-        </div>
-        <div class="loc-pill" id="locPill">
-          <div class="loc-dot"></div>
-          <span id="locText">定位中...</span>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <div id="map-container"><div id="map"></div></div>
-
-  <div class="search-wrap">
-    <div class="search-label">✦ 搜尋美食</div>
-    <div class="ai-search-box">
-      <div style="position:relative;display:flex;align-items:flex-start">
-      <textarea id="searchInput" style="flex:1" placeholder="輸入關鍵字或描述需求，例如：安靜咖啡廳、約會餐廳、宵夜..." onkeydown="handleKey(event)" oninput="toggleClear()"></textarea>
-      <button class="clear-btn" id="clearBtn" onclick="clearSearch()" style="position:absolute;right:12px;top:14px">✕</button>
-      </div>
-      <div class="search-footer">
-        <div class="quick-tags">
-          <button class="qtag" onclick="fillSearch('咖啡廳')">☕ 咖啡廳</button>
-          <button class="qtag" onclick="fillSearch('日式料理')">🍣 日式</button>
-          <button class="qtag" onclick="fillSearch('火鍋')">🍲 火鍋</button>
-          <button class="qtag" onclick="fillSearch('甜點')">🍰 甜點</button>
-          <button class="qtag" onclick="fillSearch('拉麵')">🍜 拉麵</button>
-        </div>
-        <button class="search-btn" id="searchBtn" onclick="doSearch()">
-          <span id="btnText">搜尋</span> →
-        </button>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="loc-bar">
-    <div class="loc-input-wrap">
-      <span style="font-size:15px;flex-shrink:0">📍</span>
-      <input type="text" class="loc-input" id="locInput" placeholder="輸入地址或地標，例如：台北101、信義區..." onkeydown="if(event.key==='Enter')searchByAddress()">
-    </div>
-    <div class="loc-btn-row">
-      <button class="loc-search-btn" onclick="searchByAddress()">🔍 搜尋此地</button>
-      <button class="loc-auto-btn" onclick="relocate()">⊙ 自動定位</button>
-    </div>
-  </div>
-
-  <div class="control-panel">
-    <div class="control-row">
-      <span class="control-label">排序</span>
-      <div class="control-pills">
-        <button class="sort-btn active" id="sortScore" onclick="setSort('score',this)">✦ 推薦指數</button>
-        <button class="sort-btn" id="sortRating" onclick="setSort('rating',this)">★ 星級高低</button>
-        <button class="sort-btn" id="sortDist" onclick="setSort('dist',this)">📍 距離近遠</button>
-      </div>
-    </div>
-    <div class="control-row">
-      <span class="control-label">類別</span>
-      <div class="control-pills">
-        <button class="filter-pill active" onclick="setCategory(this,'restaurant')" data-cat="restaurant"><div class="filter-dot" style="background:var(--accent)"></div>餐廳</button>
-        <button class="filter-pill" onclick="setCategory(this,'cafe')" data-cat="cafe"><div class="filter-dot" style="background:var(--accent2)"></div>咖啡廳</button>
-        <button class="filter-pill" onclick="setCategory(this,'bar')" data-cat="bar"><div class="filter-dot" style="background:var(--teal)"></div>酒吧</button>
-        <button class="filter-pill" onclick="setCategory(this,'bakery')" data-cat="bakery"><div class="filter-dot" style="background:var(--pink)"></div>烘焙甜點</button>
-        <select class="radius-select" id="radiusSelect" onchange="changeRadius()">
-          <option value="500">500m</option>
-          <option value="1000" selected>1km</option>
-          <option value="2000">2km</option>
-          <option value="3000">3km</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="recent-wrap" id="recentWrap" style="display:none">
-    <div class="recent-label">最近搜尋</div>
-    <div class="recent-tags" id="recentTags"></div>
-  </div>
-
-  <div class="results-area">
-    <div class="ai-card" id="aiCard">
-      <div class="ai-header"><span>◈</span><span class="ai-title">搜尋結果</span></div>
-      <div class="ai-thinking" id="aiThinking"></div>
-      <div class="loading-bar" id="loadingBar"><div class="loading-bar-inner"></div></div>
-    </div>
-    <div class="results-header">
-      <div class="results-title">找到 <strong id="resultCount">0</strong> 間</div>
-    </div>
-    <div id="resultsList">
-      <div class="state-box">
-        <div class="state-icon">📍</div>
-        <div class="state-title">正在取得你的位置...</div>
-        <div class="state-sub">請允許瀏覽器存取位置權限</div>
-      </div>
-    </div>
-  </div>
+<div class="ambient" aria-hidden="true">
+  <div class="ambient-orb orb-a"></div>
+  <div class="ambient-orb orb-b"></div>
 </div>
+<div class="noise" aria-hidden="true"></div>
 
-<!-- DETAIL MODAL -->
-<div class="modal-overlay" id="modal" onclick="closeModal(event)">
-  <div class="modal-box" id="modalBox">
-    <div class="modal-header">
-      <div>
-        <div class="modal-name" id="mName"></div>
-        <div style="font-size:12px;color:var(--text3);margin-top:3px" id="mType"></div>
+<div id="app">
+
+  <!-- ═══ SETUP PAGE ═══ -->
+  <div id="page-setup" class="page active">
+    <div class="setup-card">
+      <div class="setup-logo">美食<em>雷達</em></div>
+      <div class="setup-tagline">AI 驅動的在地美食探索</div>
+      <div class="setup-label">Google Maps API Key</div>
+      <input type="text" class="setup-input" id="setupKey" placeholder="AIzaSy..." autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')initApp()">
+      <div class="setup-hint">
+        Key 僅存於你的瀏覽器本機，不經過任何伺服器。<br>
+        <a href="https://console.cloud.google.com/apis/credentials" target="_blank">前往申請 Google Maps API Key →</a>
       </div>
-      <div style="display:flex;gap:8px;align-items:center"><button class="fav-btn" id="favBtn" onclick="toggleFav()">🤍</button><button class="modal-close" onclick="document.getElementById('modal').classList.remove('show')">✕</button></div>
+      <div class="setup-err" id="setupErr">Key 格式不正確，請確認完整複製</div>
+      <button class="btn-primary" onclick="initApp()">開始探索 →</button>
     </div>
-    <div id="mContent"></div>
   </div>
-</div>
 
+  <!-- ═══ MAIN PAGE ═══ -->
+  <div id="page-main" class="page">
 
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-  <button class="bnav-btn active" id="bnav-home" onclick="bnavSwitch('home',this)">
-    <span class="bnav-icon">🍽</span>探索
-  </button>
-  <button class="bnav-btn" id="bnav-fav" onclick="openFavPanel()">
-    <span class="bnav-icon">🤍</span>收藏
-  </button>
-</nav>
-
-<!-- FAVORITES PANEL -->
-<div class="fav-panel" id="favPanel">
-  <div class="fav-header">
-    <div class="fav-title">🤍 我的收藏</div>
-    <button class="fav-close" onclick="closeFavPanel()">✕</button>
-  </div>
-  <div class="fav-list" id="favList"></div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-const PLACE_TYPES = {
-  restaurant: 'restaurant',
-  cafe: 'cafe',
-  bar: 'bar',
-  bakery: 'bakery'
-};
-const TYPE_LABELS = {
-  restaurant: '餐廳', cafe: '咖啡廳', bar: '酒吧', bakery: '烘焙甜點'
-};
-const EMOJIS = {
-  restaurant: '🍽', cafe: '☕', bar: '🥃', bakery: '🥐'
-};
-
-const API_KEY = 'AIzaSyAQ0QASgyiJ_jLUCi9wCb3E4ADonC3FGys';
-let map = null;
-let markers = [];
-let userLat = null, userLng = null;
-let currentCategory = 'restaurant';
-let currentRadius = 1000;
-let allPlaces = [];
-let placesService = null;
-
-// ── LOAD MAPS SDK ──
-function loadGoogleMaps() {
-  const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAQ0QASgyiJ_jLUCi9wCb3E4ADonC3FGys&libraries=places&language=zh-TW&callback=onMapsReady`;
-  script.async = true;
-  script.onerror = () => showToast('❌ API Key 無效，請確認是否正確');
-  document.head.appendChild(script);
-}
-
-window.onMapsReady = function() {
-  getLocation();
-};
-
-// ── GEOLOCATION ──
-function getLocation() {
-  if (!navigator.geolocation) {
-    showToast('瀏覽器不支援定位');
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(pos => {
-    userLat = pos.coords.latitude;
-    userLng = pos.coords.longitude;
-    reverseGeocode(userLat, userLng);
-    initMap();
-    fetchNearby(currentCategory);
-  }, err => {
-    document.getElementById('locText').textContent = '無法定位';
-    showToast('❌ 無法取得位置，請允許定位權限');
-    // fallback: 台北101
-    userLat = 25.0339; userLng = 121.5645;
-    initMap();
-    fetchNearby(currentCategory);
-  });
-}
-
-function reverseGeocode(lat, lng) {
-  const geocoder = new google.maps.Geocoder();
-  geocoder.geocode({ location: { lat, lng }, language: 'zh-TW' }, (results, status) => {
-    if (status === 'OK' && results[0]) {
-      const comp = results[0].address_components;
-      const district = comp.find(c => c.types.includes('administrative_area_level_3') || c.types.includes('sublocality_level_1'));
-      const city = comp.find(c => c.types.includes('administrative_area_level_1') || c.types.includes('locality'));
-      const label = [city?.long_name, district?.long_name].filter(Boolean).join(' ');
-      document.getElementById('locText').textContent = label || '目前位置';
-    }
-  });
-}
-
-// ── MAP ──
-function initMap() {
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: { lat: userLat, lng: userLng },
-    zoom: 15,
-    styles: [
-      { elementType: 'geometry', stylers: [{ color: '#1a1a22' }] },
-      { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a22' }] },
-      { elementType: 'labels.text.fill', stylers: [{ color: '#8a8990' }] },
-      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a2a35' }] },
-      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0d0d18' }] },
-      { featureType: 'poi', stylers: [{ visibility: 'off' }] }
-    ],
-    disableDefaultUI: true,
-    zoomControl: true
-  });
-  placesService = new google.maps.places.PlacesService(map);
-  new google.maps.Marker({
-    position: { lat: userLat, lng: userLng },
-    map,
-    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#00c9a7', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
-  });
-}
-
-// ── FETCH PLACES ──
-function fetchNearby(type, keyword = '') {
-  if (!placesService) return;
-  setLoading(true);
-
-  if (keyword) {
-    // Use textSearch for keyword queries - better Chinese support
-    const req = {
-      query: keyword,
-      location: new google.maps.LatLng(userLat, userLng),
-      radius: currentRadius,
-      language: 'zh-TW'
-    };
-    placesService.textSearch(req, (results, status) => {
-      setLoading(false);
-      if (status === google.maps.places.PlacesServiceStatus.OK) {
-        allPlaces = results;
-        renderPlaces(results, keyword);
-        updateMapMarkers(results);
-      } else if (status === 'ZERO_RESULTS') {
-        showEmpty('找不到「' + keyword + '」相關店家', '試試其他關鍵字或擴大搜尋範圍');
-      } else {
-        showToast('❌ 搜尋失敗：' + status);
-        showEmpty('搜尋失敗', '請確認 API Key 已啟用 Places API');
-      }
-    });
-  } else {
-    // Use nearbySearch for category browsing
-    const req = {
-      location: new google.maps.LatLng(userLat, userLng),
-      radius: currentRadius,
-      type: PLACE_TYPES[type],
-      language: 'zh-TW'
-    };
-    placesService.nearbySearch(req, (results, status) => {
-      setLoading(false);
-      if (status === google.maps.places.PlacesServiceStatus.OK) {
-        allPlaces = results;
-        renderPlaces(results, '');
-        updateMapMarkers(results);
-      } else if (status === 'ZERO_RESULTS') {
-        showEmpty('附近沒有找到符合的店家', '試試擴大搜尋範圍或換個類別');
-      } else {
-        showToast('❌ 搜尋失敗：' + status);
-        showEmpty('搜尋失敗', '請確認 API Key 已啟用 Places API');
-      }
-    });
-  }
-}
-
-function calcScore(place) {
-  const rating = place.rating || 0;
-  const reviews = place.user_ratings_total || 0;
-  const rScore = (rating / 5) * 60;
-  const trust = Math.min(reviews / 1000, 1) * 30;
-  const base = 10;
-  return Math.min(100, Math.round(rScore + trust + base));
-}
-
-function renderPlaces(places, keyword) {
-  let sorted = [...places];
-  if (currentSort === 'score') {
-    sorted.sort((a, b) => calcScore(b) - calcScore(a));
-  } else if (currentSort === 'rating') {
-    sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-  } else if (currentSort === 'dist') {
-    sorted.sort((a, b) => {
-      const da = calcDistNum(a.geometry?.location);
-      const db = calcDistNum(b.geometry?.location);
-      return da - db;
-    });
-  }
-  document.getElementById('resultCount').textContent = sorted.length;
-
-  if (keyword) {
-    const card = document.getElementById('aiCard');
-    card.style.display = 'block';
-    document.getElementById('aiThinking').innerHTML = `搜尋「<em>${keyword}</em>」，找到 ${sorted.length} 間符合的店家，已依推薦指數排序。`;
-  }
-
-  const list = document.getElementById('resultsList');
-  if (sorted.length === 0) { showEmpty('沒有找到店家', '試試換個搜尋條件'); return; }
-
-  list.innerHTML = sorted.map((p, i) => {
-    const score = calcScore(p);
-    const rating = p.rating || 0;
-    const reviews = p.user_ratings_total || 0;
-    let isOpen = null;
-    try { isOpen = p.opening_hours?.isOpen?.() ?? null; } catch(e) { isOpen = null; }
-    let photo = null;
-    try { photo = p.photos?.[0]?.getUrl({ maxWidth: 160, maxHeight: 160 }); } catch(e) { photo = null; }
-    const stars = renderStars(rating);
-    const typeName = p.types?.[0]?.replace(/_/g, ' ') || TYPE_LABELS[currentCategory];
-    return `
-    <div class="rest-card ${i === 0 ? 'top-pick' : ''} fade-in" onclick="openDetail('${p.place_id}')">
-      <div class="card-inner">
-        <div class="card-img-wrap">
-          ${photo ? `<img class="card-img" src="${photo}" loading="lazy">` : `<div class="card-img-placeholder">${EMOJIS[currentCategory]}</div>`}
-          <div class="rank-badge">#${i + 1}</div>
-        </div>
-        <div class="card-body">
-          <div class="card-top">
-            <div>
-              <div class="card-name">${p.name}</div>
-              <div class="card-type">${typeName}</div>
-            </div>
-            <div class="score-wrap">
-              <div class="stars">${stars}</div>
-              <div class="score-num">${score}</div>
-              <div class="score-label">推薦指數</div>
-            </div>
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-logo">美食<em>雷達</em></div>
+        <div class="header-right">
+          <div class="desktop-nav">
+            <button class="desktop-nav-btn on" id="deskHome" onclick="deskNav('home',this)">探索</button>
+            <button class="desktop-nav-btn" id="deskFav" onclick="openFav()">收藏</button>
           </div>
-          <div class="card-desc">${p.vicinity || p.formatted_address || ''}</div>
-          <div class="card-tags">
-            ${rating >= 4.5 ? '<span class="ctag ctag-orange">高評分</span>' : ''}
-            ${reviews >= 500 ? '<span class="ctag ctag-teal">熱門</span>' : ''}
-            ${reviews >= 1000 ? '<span class="ctag ctag-yellow">超人氣</span>' : ''}
-            <span class="ctag ctag-gray">⭐ ${rating || 'N/A'}</span>
+          <div class="map-toggle">
+            <button class="mtab on" onclick="setView('list',this)">列表</button>
+            <button class="mtab" onclick="setView('map',this)">地圖</button>
           </div>
-          <div class="card-meta">
-            <div class="meta-item">📍 ${formatDist(p.geometry?.location)}</div>
-            <div class="meta-item">💬 ${reviews.toLocaleString()} 則</div>
-            ${isOpen === true ? '<span class="open-badge">營業中</span>' : isOpen === false ? '<span class="closed-badge">已打烊</span>' : ''}
-            <button class="card-fav-btn" id="cfav-${p.place_id}" onclick="event.stopPropagation();quickFav('${p.place_id}','${p.name.replace(/'/g,"\\'")}',${rating},'${(p.vicinity||p.formatted_address||'').replace(/'/g,"\\'")}')">
-              ${favorites.some(f => f.id === p.place_id) ? '❤️' : '🤍'}
+          <div class="loc-chip" id="locChip" onclick="focusLocInput()">
+            <div class="loc-pulse"></div>
+            <span id="locLabel">定位中...</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div id="map-view"><div id="map"></div></div>
+
+    <div class="main-body">
+
+      <!-- Search -->
+      <div class="search-section">
+        <div class="search-box">
+          <textarea class="search-textarea" id="searchTA"
+            placeholder="描述你的需求，例如：適合情侶約會、有氣氛、不要太貴..."
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();doSearch()}"
+            oninput="onSearchInput()"></textarea>
+          <div class="search-footer">
+            <div class="quick-tags" id="quickTags">
+              <button class="qtag" onclick="qs('咖啡廳')">☕ 咖啡廳</button>
+              <button class="qtag" onclick="qs('約會餐廳')">🕯 約會</button>
+              <button class="qtag" onclick="qs('深夜宵夜')">🌙 宵夜</button>
+              <button class="qtag" onclick="qs('朋友聚餐')">🎉 聚餐</button>
+              <button class="qtag" onclick="qs('日式料理')">🍣 日式</button>
+              <button class="qtag" onclick="qs('火鍋')">🍲 火鍋</button>
+              <button class="qtag" onclick="qs('拉麵')">🍜 拉麵</button>
+              <button class="qtag" onclick="qs('甜點')">🍰 甜點</button>
+            </div>
+            <button class="search-go" id="searchGoBtn" onclick="doSearch()">
+              搜尋 <span id="searchGoArrow">→</span>
             </button>
           </div>
         </div>
       </div>
-    </div>`;
-  }).join('') + (sorted.length > 0 ? `<div class='no-more'>— 已顯示全部 ${sorted.length} 間 —</div>` : '');
-}
 
-function renderStars(rating) {
-  let html = '';
-  for (let i = 1; i <= 5; i++) {
-    html += `<span class="star ${i <= Math.round(rating) ? 'full' : 'empty'}">★</span>`;
+      <!-- Location -->
+      <div class="loc-bar" id="locBar">
+        <div class="loc-input-row">
+          <span style="font-size:14px;flex-shrink:0">📍</span>
+          <input type="text" class="loc-input" id="locInput"
+            placeholder="輸入地址或地標，例如：台北101、信義區..."
+            onkeydown="if(event.key==='Enter')searchByAddr()">
+        </div>
+        <div class="loc-btn-row">
+          <button class="btn-loc-search" onclick="searchByAddr()">🔍 搜尋此地</button>
+          <button class="btn-loc-auto" id="autoLocBtn" onclick="autoLocate()">⊙ 自動定位</button>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="control-panel">
+        <div class="control-row">
+          <span class="ctrl-label">排序</span>
+          <div class="ctrl-pills">
+            <button class="sort-pill on" data-sort="score" onclick="setSort(this)">✦ 推薦指數</button>
+            <button class="sort-pill" data-sort="rating" onclick="setSort(this)">★ 星級高低</button>
+            <button class="sort-pill" data-sort="dist" onclick="setSort(this)">📍 距離近遠</button>
+          </div>
+        </div>
+        <div class="control-row">
+          <span class="ctrl-label">類別</span>
+          <div class="ctrl-pills">
+            <button class="cat-pill on" data-cat="restaurant" onclick="setCat(this)"><span class="cat-dot" style="background:#ff5f2e"></span>餐廳</button>
+            <button class="cat-pill" data-cat="cafe" onclick="setCat(this)"><span class="cat-dot" style="background:#ffb020"></span>咖啡廳</button>
+            <button class="cat-pill" data-cat="bar" onclick="setCat(this)"><span class="cat-dot" style="background:#0fd4a8"></span>酒吧</button>
+            <button class="cat-pill" data-cat="bakery" onclick="setCat(this)"><span class="cat-dot" style="background:#ff4d8f"></span>烘焙甜點</button>
+            <select class="radius-sel" id="radiusSel" onchange="onRadiusChange()">
+              <option value="500">500m</option>
+              <option value="1000" selected>1km</option>
+              <option value="2000">2km</option>
+              <option value="3000">3km</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent searches -->
+      <div class="recent-section" id="recentSec">
+        <div class="recent-label">最近搜尋</div>
+        <div class="recent-tags" id="recentTags"></div>
+      </div>
+
+      <!-- Results -->
+      <div class="results-header">
+        <div class="results-count">找到 <strong id="resultCount">0</strong> 間</div>
+      </div>
+      <div class="card-list" id="cardList">
+        <div class="state-box">
+          <div class="state-icon">📍</div>
+          <div class="state-title">正在取得你的位置...</div>
+          <div class="state-sub">請允許瀏覽器存取位置權限</div>
+        </div>
+      </div>
+
+    </div><!-- /main-body -->
+  </div><!-- /page-main -->
+
+</div><!-- /app -->
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modal" onclick="onModalOverlayClick(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <div>
+        <div class="modal-name" id="mName"></div>
+        <div class="modal-subtype" id="mSub"></div>
+      </div>
+      <div class="modal-head-right">
+        <button class="modal-fav-btn" id="mFavBtn" onclick="toggleModalFav()">🤍</button>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-ai-box" id="mAiBox">
+        <div class="modal-ai-label">◈ AI 推薦理由</div>
+        <div class="modal-ai-text" id="mAiText"></div>
+      </div>
+      <div id="mRows"></div>
+      <button class="modal-nav-btn" id="mNavBtn" onclick="navToPlace()">📍 導航到這裡</button>
+    </div>
+  </div>
+</div>
+
+<!-- Favorites Panel -->
+<div class="fav-panel" id="favPanel">
+  <div class="fav-panel-head">
+    <div class="fav-panel-title">❤️ 我的收藏</div>
+    <button class="fav-close" onclick="closeFav()">✕</button>
+  </div>
+  <div class="fav-body" id="favBody"></div>
+</div>
+
+<!-- Bottom Nav (mobile) -->
+<nav class="bottom-nav">
+  <button class="bnav-btn on" id="bnavExplore" onclick="bnavHome()">
+    <span class="bnav-icon">🍽</span>探索
+  </button>
+  <button class="bnav-btn" id="bnavFav" onclick="openFav()">
+    <span class="bnav-icon" id="bnavFavIcon">🤍</span>收藏
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+const S = {
+  apiKey: '',
+  lat: null, lng: null,
+  category: 'restaurant',
+  radius: 1000,
+  sort: 'score',
+  places: [],
+  favs: JSON.parse(localStorage.getItem('fr_favs2') || '[]'),
+  recent: JSON.parse(localStorage.getItem('fr_recent2') || '[]'),
+  currentPlace: null,
+  map: null, markers: [],
+  placeSvc: null,
+  loading: false,
+};
+
+const CAT = {
+  restaurant: { label:'餐廳', emoji:'🍽', color:'#ff5f2e' },
+  cafe:       { label:'咖啡廳', emoji:'☕', color:'#ffb020' },
+  bar:        { label:'酒吧', emoji:'🥃', color:'#0fd4a8' },
+  bakery:     { label:'烘焙甜點', emoji:'🥐', color:'#ff4d8f' },
+};
+
+/* ══════════════════════════════════════
+   SETUP
+══════════════════════════════════════ */
+function initApp() {
+  const key = document.getElementById('setupKey').value.trim();
+  if (!key.startsWith('AIza') || key.length < 30) {
+    document.getElementById('setupErr').style.display = 'block';
+    return;
   }
-  return html;
+  S.apiKey = key;
+  localStorage.setItem('fr_key2', key);
+  showPage('page-main');
+  loadSDK();
 }
 
-function calcDistNum(loc) {
-  if (!loc || !userLat) return 99999;
-  try {
-    const lat = typeof loc.lat === 'function' ? loc.lat() : loc.lat;
-    const lng = typeof loc.lng === 'function' ? loc.lng() : loc.lng;
-    const R = 6371000;
-    const dLat = (lat - userLat) * Math.PI / 180;
-    const dLng = (lng - userLng) * Math.PI / 180;
-    const a = Math.sin(dLat/2)**2 + Math.cos(userLat * Math.PI/180) * Math.cos(lat * Math.PI/180) * Math.sin(dLng/2)**2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  } catch(e) { return 99999; }
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-function formatDist(loc) {
-  if (!loc || !userLat) return '—';
-  try {
-    const d = calcDistNum(loc);
-    return d === 99999 ? '—' : d < 1000 ? Math.round(d) + 'm' : (d/1000).toFixed(1) + 'km';
-  } catch(e) { return '—'; }
+/* ══════════════════════════════════════
+   GOOGLE MAPS SDK
+══════════════════════════════════════ */
+function loadSDK() {
+  const s = document.createElement('script');
+  s.src = `https://maps.googleapis.com/maps/api/js?key=${S.apiKey}&libraries=places&language=zh-TW&callback=onSDKReady`;
+  s.async = true;
+  s.onerror = () => toast('❌ API Key 無效');
+  document.head.appendChild(s);
 }
 
-// ── MAP MARKERS ──
-function updateMapMarkers(places) {
-  markers.forEach(m => m.setMap(null));
-  markers = [];
+window.onSDKReady = function() {
+  initMap();
+  getLocation();
+  renderRecent();
+};
+
+/* ══════════════════════════════════════
+   MAP
+══════════════════════════════════════ */
+function initMap() {
+  S.map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 25.0339, lng: 121.5645 },
+    zoom: 15,
+    disableDefaultUI: true,
+    zoomControl: true,
+    styles: [
+      { elementType:'geometry', stylers:[{color:'#1a1a22'}] },
+      { elementType:'labels.text.stroke', stylers:[{color:'#1a1a22'}] },
+      { elementType:'labels.text.fill', stylers:[{color:'#888790'}] },
+      { featureType:'road', elementType:'geometry', stylers:[{color:'#252530'}] },
+      { featureType:'water', elementType:'geometry', stylers:[{color:'#0d0d18'}] },
+      { featureType:'poi', stylers:[{visibility:'off'}] },
+    ]
+  });
+  S.placeSvc = new google.maps.places.PlacesService(S.map);
+}
+
+function setView(v, el) {
+  document.querySelectorAll('.mtab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  const mv = document.getElementById('map-view');
+  mv.classList.toggle('active', v === 'map');
+  if (v === 'map' && S.map) google.maps.event.trigger(S.map, 'resize');
+}
+
+function updateMarkers(places) {
+  S.markers.forEach(m => m.setMap(null));
+  S.markers = [];
+  if (!S.map) return;
   places.forEach((p, i) => {
+    const loc = p.geometry?.location;
+    if (!loc) return;
     const m = new google.maps.Marker({
-      position: p.geometry.location,
-      map,
-      label: { text: String(i + 1), color: '#fff', fontSize: '11px', fontWeight: '500' },
-      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 14, fillColor: i === 0 ? '#ff6b35' : '#1c1c22', fillOpacity: 1, strokeColor: '#ff6b35', strokeWeight: 1.5 }
+      position: loc, map: S.map,
+      label: { text: String(i+1), color:'#fff', fontSize:'11px', fontWeight:'500' },
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale:14,
+        fillColor: i===0 ? '#ff5f2e':'#1c1c24',
+        fillOpacity:1, strokeColor:'#ff5f2e', strokeWeight:1.5 }
     });
     m.addListener('click', () => openDetail(p.place_id));
-    markers.push(m);
+    S.markers.push(m);
+  });
+  if (S.lat) S.map.setCenter({ lat:S.lat, lng:S.lng });
+}
+
+/* ══════════════════════════════════════
+   GEOLOCATION
+══════════════════════════════════════ */
+function getLocation() {
+  if (!navigator.geolocation) { setLocLabel('無法定位'); fetchPlaces(); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    S.lat = pos.coords.latitude;
+    S.lng = pos.coords.longitude;
+    reverseGeo(S.lat, S.lng);
+    if (S.map) S.map.setCenter({ lat:S.lat, lng:S.lng });
+    fetchPlaces();
+  }, () => {
+    S.lat = 25.0339; S.lng = 121.5645;
+    setLocLabel('台北市信義區');
+    fetchPlaces();
   });
 }
 
-// ── PLACE DETAIL ──
-function openDetailFromPlace(place) {
-    const priceMap = {0:'免費',1:'$ 平價',2:'$$ 中等',3:'$$$ 較貴',4:'$$$$ 高級'};
-    const price = (place.price_level != null && place.price_level !== undefined) ? (priceMap[place.price_level] ?? '—') : '無資料';
-    const hours = place.opening_hours?.weekday_text?.join('<br>') || '—';
-    currentPlaceDetail = place;
-    const isFaved = favorites.some(f => f.id === place.place_id);
-    document.getElementById('favBtn').textContent = isFaved ? '❤️' : '🤍';
-    document.getElementById('mName').textContent = place.name;
-    document.getElementById('mType').textContent = place.types?.[0]?.replace(/_/g, ' ') || '';
-    document.getElementById('mContent').innerHTML = `
-      <div class="modal-row"><span class="modal-icon">⭐</span><span class="modal-val">${place.rating || '—'} 分（${(place.user_ratings_total || 0).toLocaleString()} 則評論）</span></div>
-      <div class="modal-row"><span class="modal-icon">💰</span><span class="modal-val">價位：${price}</span></div>
-      <div class="modal-row"><span class="modal-icon">📍</span><span class="modal-val">${place.formatted_address || '—'}</span></div>
-      ${place.formatted_phone_number ? `<div class="modal-row" style="cursor:pointer" onclick="window.location.href='tel:${place.formatted_phone_number.replace(/\s/g,'')}'"><span class="modal-icon">📞</span><a class="modal-val" style="color:var(--teal);text-decoration:none;font-weight:500">${place.formatted_phone_number}</a><span style="color:var(--teal);font-size:12px;margin-left:auto;flex-shrink:0">點擊撥號 →</span></div>` : ''}
-      <div class="modal-row"><span class="modal-icon">🕐</span><span class="modal-val" style="font-size:12px;line-height:1.8">${hours}</span></div>
-      ${place.url ? `<div class="modal-row"><span class="modal-icon">🗺</span><a class="modal-link modal-val" href="${place.url}" target="_blank">在 Google Maps 查看</a></div>` : ''}
-      ${place.website ? `<div class="modal-row"><span class="modal-icon">🌐</span><a class="modal-link modal-val" href="${place.website}" target="_blank">${place.website}</a></div>` : ''}
-      <div style="margin-top:16px">
-        <button onclick="navigateTo('${(place.formatted_address||place.name).replace(/'/g,"\'")}')" style="width:100%;background:var(--teal);color:#0d0d0f;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:500;font-family:'Noto Sans TC',sans-serif;cursor:pointer;touch-action:manipulation;">📍 導航到這裡</button>
-      </div>
-    `;
-    document.getElementById('modal').classList.add('show');
-}
-
-function openDetail(placeId) {
-  placesService.getDetails({
-    placeId,
-    fields: ['name', 'rating', 'user_ratings_total', 'formatted_address', 'formatted_phone_number', 'website', 'opening_hours', 'url', 'price_level', 'types', 'place_id'],
-    language: 'zh-TW'
-  }, (place, status) => {
-    if (status !== google.maps.places.PlacesServiceStatus.OK) { showToast('無法取得詳細資訊'); return; }
-    document.getElementById('mName').textContent = place.name;
-    document.getElementById('mType').textContent = place.types?.[0]?.replace(/_/g, ' ') || '';
-    const priceMap = {0:'免費',1:'$ 平價',2:'$$ 中等',3:'$$$ 較貴',4:'$$$$ 高級'};
-    const price = (place.price_level != null && place.price_level !== undefined) ? (priceMap[place.price_level] ?? '—') : '無資料';
-    const hours = place.opening_hours?.weekday_text?.join('<br>') || '—';
-    currentPlaceDetail = place;
-    const isFaved = favorites.some(f => f.id === place.place_id);
-    document.getElementById('favBtn').textContent = isFaved ? '❤️' : '🤍';
-    document.getElementById('mContent').innerHTML = `
-      <div class="modal-row"><span class="modal-icon">⭐</span><span class="modal-val">${place.rating || '—'} 分（${(place.user_ratings_total || 0).toLocaleString()} 則評論）</span></div>
-      <div class="modal-row"><span class="modal-icon">💰</span><span class="modal-val">價位：${price}</span></div>
-      <div class="modal-row"><span class="modal-icon">📍</span><span class="modal-val">${place.formatted_address || '—'}</span></div>
-      ${place.formatted_phone_number ? `<div class="modal-row" style="cursor:pointer" onclick="window.location.href='tel:${place.formatted_phone_number.replace(/\\s/g,'')}'"><span class="modal-icon">📞</span><a class="modal-val" style="color:var(--teal);text-decoration:none;font-weight:500">${place.formatted_phone_number}</a><span style="color:var(--teal);font-size:12px;margin-left:auto;flex-shrink:0">點擊撥號 →</span></div>` : ''}
-      <div class="modal-row"><span class="modal-icon">🕐</span><span class="modal-val" style="font-size:12px;line-height:1.8">${hours}</span></div>
-      ${place.url ? `<div class="modal-row"><span class="modal-icon">🗺</span><a class="modal-link modal-val" href="${place.url}" target="_blank">在 Google Maps 查看</a></div>` : ''}
-      ${place.website ? `<div class="modal-row"><span class="modal-icon">🌐</span><a class="modal-link modal-val" href="${place.website}" target="_blank">${place.website}</a></div>` : ''}
-      <div style="margin-top:16px">
-        <button onclick="navigateTo(${(place.formatted_address||place.name).replace(/'/g,"\'")})" style="width:100%;background:var(--teal);color:#0d0d0f;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:500;font-family:'Noto Sans TC',sans-serif;cursor:pointer;touch-action:manipulation;">📍 導航到這裡</button>
-      </div>
-    `;
-    document.getElementById('modal').classList.add('show');
+function autoLocate() {
+  const btn = document.getElementById('autoLocBtn');
+  btn.textContent = '定位中...'; btn.disabled = true;
+  navigator.geolocation.getCurrentPosition(pos => {
+    S.lat = pos.coords.latitude; S.lng = pos.coords.longitude;
+    reverseGeo(S.lat, S.lng);
+    if (S.map) { S.map.setCenter({lat:S.lat,lng:S.lng}); S.map.setZoom(15); }
+    document.getElementById('locInput').value = '';
+    fetchPlaces();
+    btn.textContent = '⊙ 自動定位'; btn.disabled = false;
+    toast('✓ 已更新至目前位置');
+  }, () => {
+    toast('❌ 無法取得位置，請確認定位權限');
+    btn.textContent = '⊙ 自動定位'; btn.disabled = false;
   });
 }
 
-function closeModal(e) {
-  if (e.target === document.getElementById('modal')) {
-    document.getElementById('modal').classList.remove('show');
-  }
-}
-
-// ── SEARCH ──
-function doSearch() {
-  const q = document.getElementById('searchInput').value.trim();
-  if (q) saveRecent(q);
-  fetchNearby(currentCategory, q);
-}
-function fillSearch(t) { document.getElementById('searchInput').value = t; doSearch(); }
-function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSearch(); } }
-
-// ── FILTER ──
-function setCategory(el, cat) {
-  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  currentCategory = cat;
-  document.getElementById('aiCard').style.display = 'none';
-  fetchNearby(cat);
-}
-function changeRadius() {
-  currentRadius = parseInt(document.getElementById('radiusSelect').value);
-  fetchNearby(currentCategory);
-}
-
-// ── VIEW ──
-function switchView(view, el) {
-  document.querySelectorAll('.vtab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('map-container').style.display = view === 'map' ? 'block' : 'none';
-  if (view === 'map' && map) google.maps.event.trigger(map, 'resize');
-}
-
-// ── UTILS ──
-function setLoading(on) {
-  const btn = document.getElementById('searchBtn');
-  const list = document.getElementById('resultsList');
-  btn.disabled = on;
-  document.getElementById('btnText').textContent = on ? '搜尋中...' : '搜尋';
-  if (on) list.innerHTML = `<div class="state-box"><div class="spinner"></div><div class="state-title">搜尋附近店家中...</div></div>`;
-}
-function showEmpty(title, sub) {
-  document.getElementById('resultsList').innerHTML = `<div class="state-box"><div class="state-icon">🔍</div><div class="state-title">${title}</div><div class="state-sub">${sub}</div></div>`;
-  document.getElementById('resultCount').textContent = '0';
-}
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-
-// ── LOCATION SEARCH ──
-let currentSort = 'score';
-
-function searchByAddress() {
-  const addr = document.getElementById('locInput').value.trim();
-  if (!addr) { showToast('請輸入地址或地標'); return; }
-  const geocoder = new google.maps.Geocoder();
-  geocoder.geocode({ address: addr, language: 'zh-TW' }, (results, status) => {
-    if (status === 'OK' && results[0]) {
-      userLat = results[0].geometry.location.lat();
-      userLng = results[0].geometry.location.lng();
-      const name = results[0].formatted_address;
-      document.getElementById('locText').textContent = name.length > 12 ? name.substring(0,12)+'...' : name;
-      if (map) {
-        map.setCenter({ lat: userLat, lng: userLng });
-        map.setZoom(15);
-      }
-      fetchNearby(currentCategory);
-      showToast('✓ 已切換到：' + results[0].formatted_address);
-    } else {
-      showToast('❌ 找不到這個地址，請試試更精確的描述');
+function reverseGeo(lat, lng) {
+  const gc = new google.maps.Geocoder();
+  gc.geocode({ location:{lat,lng}, language:'zh-TW' }, (res, st) => {
+    if (st==='OK' && res[0]) {
+      const c = res[0].address_components;
+      const d = c.find(x => x.types.includes('administrative_area_level_3')||x.types.includes('sublocality_level_1'));
+      const ci = c.find(x => x.types.includes('administrative_area_level_1')||x.types.includes('locality'));
+      setLocLabel([ci?.long_name, d?.long_name].filter(Boolean).join(' ') || '目前位置');
     }
   });
 }
 
-function relocate() {
-  const btn = document.querySelector('.loc-auto-btn');
-  btn.textContent = '定位中...';
-  btn.disabled = true;
-  navigator.geolocation.getCurrentPosition(pos => {
-    userLat = pos.coords.latitude;
-    userLng = pos.coords.longitude;
-    reverseGeocode(userLat, userLng);
-    document.getElementById('locInput').value = '';
-    if (map) { map.setCenter({ lat: userLat, lng: userLng }); map.setZoom(15); }
-    fetchNearby(currentCategory);
-    btn.textContent = '⊙ 自動定位';
-    btn.disabled = false;
-    showToast('✓ 已更新為目前位置');
-  }, () => {
-    showToast('❌ 無法取得位置，請確認定位權限');
-    btn.textContent = '⊙ 自動定位';
-    btn.disabled = false;
+function setLocLabel(t) {
+  document.getElementById('locLabel').textContent = t.length > 10 ? t.slice(0,10)+'…' : t;
+}
+
+function searchByAddr() {
+  const addr = document.getElementById('locInput').value.trim();
+  if (!addr) { toast('請輸入地址或地標'); return; }
+  const gc = new google.maps.Geocoder();
+  gc.geocode({ address:addr, language:'zh-TW' }, (res, st) => {
+    if (st==='OK' && res[0]) {
+      S.lat = res[0].geometry.location.lat();
+      S.lng = res[0].geometry.location.lng();
+      setLocLabel(res[0].formatted_address);
+      if (S.map) { S.map.setCenter({lat:S.lat,lng:S.lng}); S.map.setZoom(15); }
+      fetchPlaces();
+      toast('✓ 已切換搜尋地點');
+    } else { toast('❌ 找不到此地址'); }
   });
 }
 
-// ── SORT ──
-function setSort(type, el) {
-  currentSort = type;
-  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  if (allPlaces.length > 0) renderPlaces(allPlaces, '');
-}
+function focusLocInput() { document.getElementById('locInput').focus(); }
 
+/* ══════════════════════════════════════
+   FETCH PLACES
+══════════════════════════════════════ */
+function fetchPlaces(keyword='') {
+  if (!S.placeSvc || S.lat===null) return;
+  setLoading(true);
+  const loc = new google.maps.LatLng(S.lat, S.lng);
 
-// ── FAVORITES ──
-let favorites = JSON.parse(localStorage.getItem('fr_favs') || '[]');
-let currentPlaceDetail = null;
-
-function toggleFav() {
-  if (!currentPlaceDetail) return;
-  const p = currentPlaceDetail;
-  const idx = favorites.findIndex(f => f.id === p.place_id);
-  if (idx >= 0) {
-    favorites.splice(idx, 1);
-    document.getElementById('favBtn').textContent = '🤍';
-    showToast('已移除收藏');
+  if (keyword) {
+    S.placeSvc.textSearch({
+      query: keyword, location: loc, radius: S.radius, language:'zh-TW'
+    }, handleResults.bind(null, keyword));
   } else {
-    favorites.push({ id: p.place_id, name: p.name, type: p.types?.[0] || '', rating: p.rating, address: p.formatted_address });
-    document.getElementById('favBtn').textContent = '❤️';
-    showToast('✓ 已加入收藏');
+    S.placeSvc.nearbySearch({
+      location: loc, radius: S.radius,
+      type: S.category, language:'zh-TW'
+    }, handleResults.bind(null, ''));
   }
-  localStorage.setItem('fr_favs', JSON.stringify(favorites));
-  renderFavList();
 }
 
-function openFavPanel() {
+function handleResults(keyword, results, status) {
+  setLoading(false);
+  const PS = google.maps.places.PlacesServiceStatus;
+  if (status === PS.OK) {
+    S.places = results;
+    renderCards(results, keyword);
+    updateMarkers(results);
+  } else if (status === 'ZERO_RESULTS') {
+    showEmpty('沒有找到店家', keyword ? `找不到「${keyword}」相關結果，試試其他關鍵字` : '試試擴大搜尋範圍');
+  } else {
+    showEmpty('搜尋失敗', '請確認 API Key 已啟用 Places API');
+    toast('❌ ' + status);
+  }
+}
+
+/* ══════════════════════════════════════
+   SCORE & SORT
+══════════════════════════════════════ */
+function score(p) {
+  const r = p.rating || 0;
+  const n = p.user_ratings_total || 0;
+  return Math.min(100, Math.round((r/5)*60 + Math.min(n/1000,1)*30 + 10));
+}
+
+function distM(loc) {
+  if (!loc || S.lat===null) return 99999;
+  try {
+    const la = typeof loc.lat==='function' ? loc.lat() : loc.lat;
+    const lo = typeof loc.lng==='function' ? loc.lng() : loc.lng;
+    const R=6371000, dLa=(la-S.lat)*Math.PI/180, dLo=(lo-S.lng)*Math.PI/180;
+    const a=Math.sin(dLa/2)**2+Math.cos(S.lat*Math.PI/180)*Math.cos(la*Math.PI/180)*Math.sin(dLo/2)**2;
+    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  } catch { return 99999; }
+}
+
+function fmtDist(loc) {
+  const d = distM(loc);
+  return d===99999 ? '—' : d<1000 ? Math.round(d)+'m' : (d/1000).toFixed(1)+'km';
+}
+
+function sortPlaces(arr) {
+  return [...arr].sort((a,b) => {
+    if (S.sort==='rating') return (b.rating||0)-(a.rating||0);
+    if (S.sort==='dist')   return distM(a.geometry?.location)-distM(b.geometry?.location);
+    return score(b)-score(a);
+  });
+}
+
+/* ══════════════════════════════════════
+   RENDER CARDS
+══════════════════════════════════════ */
+function renderCards(places, keyword) {
+  const list = document.getElementById('cardList');
+  const sorted = sortPlaces(places);
+  document.getElementById('resultCount').textContent = sorted.length;
+
+  if (!sorted.length) { showEmpty('沒有找到店家','試試換個條件'); return; }
+
+  list.innerHTML = sorted.map((p,i) => cardHTML(p,i)).join('') +
+    `<div class="no-more">— 共 ${sorted.length} 間 —</div>`;
+
+  // Trigger AI reasons for top 5
+  sorted.slice(0,5).forEach((p,i) => {
+    if (keyword || i < 3) scheduleAiReason(p, keyword, i);
+  });
+}
+
+function cardHTML(p, i) {
+  const sc = score(p);
+  const rt = p.rating || 0;
+  const rv = p.user_ratings_total || 0;
+  let ph = ''; try { ph = p.photos?.[0]?.getUrl({maxWidth:180,maxHeight:180}) || ''; } catch{}
+  let isOpen = null; try { isOpen = p.opening_hours?.isOpen?.() ?? null; } catch{}
+  const addr = p.vicinity || p.formatted_address || '';
+  const isFav = S.favs.some(f => f.id===p.place_id);
+  const emoji = CAT[S.category]?.emoji || '🍽';
+  const stars = [1,2,3,4,5].map(s=>`<span class="r-star${s<=Math.round(rt)?' on':''}">★</span>`).join('');
+  const badges = buildBadges(p);
+
+  return `
+  <div class="r-card${i===0?' is-top':''} fade-up" onclick="openDetail('${p.place_id}')">
+    <div class="r-card-inner">
+      <div class="r-card-img">
+        ${ph ? `<img src="${ph}" loading="lazy" alt="${p.name}">` : `<div class="r-card-emoji">${emoji}</div>`}
+        <div class="r-card-rank">#${i+1}</div>
+      </div>
+      <div class="r-card-body">
+        <div class="r-card-top">
+          <div style="min-width:0">
+            <div class="r-card-name">${p.name}</div>
+            <div class="r-card-type">${(p.types?.[0]||'').replace(/_/g,' ')}</div>
+          </div>
+          <div class="r-score-wrap">
+            <div class="r-stars">${stars}</div>
+            <div class="r-score">${sc}</div>
+            <div class="r-score-label">推薦指數</div>
+          </div>
+        </div>
+        <div class="r-card-addr">${addr}</div>
+        <div class="r-ai-loading" id="ail-${p.place_id}">
+          <span style="font-size:10px;color:var(--accent)">◈</span>
+          AI 分析中<span class="ai-dots"><span></span><span></span><span></span></span>
+        </div>
+        <div class="r-ai-reason" id="air-${p.place_id}"></div>
+        <div class="r-badges">${badges}</div>
+        <div class="r-card-meta">
+          <div class="r-meta-item">📍 ${fmtDist(p.geometry?.location)}</div>
+          <div class="r-meta-item">💬 ${rv.toLocaleString()}</div>
+          <div class="r-meta-item">⭐ ${rt||'—'}</div>
+          ${isOpen===true?'<span class="r-open">營業中</span>':isOpen===false?'<span class="r-close">已打烊</span>':''}
+          <button class="r-fav-btn" id="cfav-${p.place_id}"
+            onclick="event.stopPropagation();quickFav('${p.place_id}','${p.name.replace(/'/g,"\\'")}',${rt},'${addr.replace(/'/g,"\\'")}')">
+            ${isFav?'❤️':'🤍'}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildBadges(p) {
+  const r=p.rating||0, n=p.user_ratings_total||0;
+  const b=[];
+  if (r>=4.7) b.push('<span class="badge badge-orange">🔥 高評分</span>');
+  if (n>=2000) b.push('<span class="badge badge-teal">🌊 超人氣</span>');
+  else if (n>=500) b.push('<span class="badge badge-teal">熱門</span>');
+  if (r>=4.5 && n>=1000) b.push('<span class="badge badge-yellow">✦ 口碑店</span>');
+  b.push(`<span class="badge badge-gray">⭐ ${r||'N/A'}</span>`);
+  return b.join('');
+}
+
+/* ══════════════════════════════════════
+   AI REASON (Claude API)
+══════════════════════════════════════ */
+async function scheduleAiReason(p, keyword, idx) {
+  await new Promise(r => setTimeout(r, idx * 600));
+  const loadEl = document.getElementById(`ail-${p.place_id}`);
+  const reasonEl = document.getElementById(`air-${p.place_id}`);
+  if (!loadEl || !reasonEl) return;
+
+  loadEl.classList.add('visible');
+
+  const prompt = `你是台灣在地美食推薦專家。根據以下店家資訊，給出一句話（繁體中文，30字以內）的推薦理由，要具體、有溫度、讓人想去。
+店名：${p.name}
+評分：${p.rating}（${p.user_ratings_total}則評論）
+類型：${(p.types||[]).slice(0,3).join('、')}
+地址：${p.vicinity||p.formatted_address||''}
+${keyword ? `使用者搜尋：${keyword}` : ''}
+直接輸出推薦理由，不要加任何前綴或標點符號開頭。`;
+
+  try {
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, maxTokens: 100 })
+    });
+    const data = await res.json();
+    const text = data.text || '';
+    if (text) {
+      loadEl.classList.remove('visible');
+      reasonEl.innerHTML = `<span class="r-ai-reason-icon">◈</span>${text}`;
+      reasonEl.classList.add('visible');
+    } else {
+      loadEl.classList.remove('visible');
+    }
+  } catch {
+    loadEl.classList.remove('visible');
+  }
+}
+
+/* ══════════════════════════════════════
+   DETAIL MODAL
+══════════════════════════════════════ */
+function openDetail(placeId) {
+  if (!S.placeSvc) return;
+  S.placeSvc.getDetails({
+    placeId,
+    fields:['name','rating','user_ratings_total','formatted_address',
+            'formatted_phone_number','website','opening_hours','url',
+            'price_level','types','place_id'],
+    language:'zh-TW'
+  }, (place, status) => {
+    if (status !== google.maps.places.PlacesServiceStatus.OK) { toast('無法取得詳細資訊'); return; }
+    S.currentPlace = place;
+    renderModal(place);
+    fetchModalAiReason(place);
+  });
+}
+
+function renderModal(p) {
+  const priceMap = {0:'免費',1:'$ 平價',2:'$$ 中等',3:'$$$ 較貴',4:'$$$$ 高級'};
+  const price = p.price_level!=null ? (priceMap[p.price_level]||'—') : '無資料';
+  const hours = p.opening_hours?.weekday_text?.join('<br>') || '—';
+  const isFav = S.favs.some(f => f.id===p.place_id);
+
+  document.getElementById('mName').textContent = p.name;
+  document.getElementById('mSub').textContent = (p.types?.[0]||'').replace(/_/g,' ');
+  document.getElementById('mFavBtn').textContent = isFav ? '❤️':'🤍';
+  document.getElementById('mAiBox').classList.remove('visible');
+  document.getElementById('mAiText').textContent = '';
+
+  document.getElementById('mNavBtn').setAttribute('data-addr', p.formatted_address||p.name);
+
+  let rows = `
+    <div class="modal-row">
+      <span class="modal-row-icon">⭐</span>
+      <span class="modal-row-val">${p.rating||'—'} 分（${(p.user_ratings_total||0).toLocaleString()} 則評論）</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-icon">💰</span>
+      <span class="modal-row-val">價位：${price}</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-icon">📍</span>
+      <span class="modal-row-val">${p.formatted_address||'—'}</span>
+    </div>`;
+
+  if (p.formatted_phone_number) {
+    const tel = p.formatted_phone_number.replace(/\s/g,'');
+    rows += `
+    <div class="modal-row clickable" onclick="window.location.href='tel:${tel}'">
+      <span class="modal-row-icon">📞</span>
+      <span class="modal-row-val" style="color:var(--teal);font-weight:500">${p.formatted_phone_number}</span>
+      <span class="modal-row-action">點擊撥號 →</span>
+    </div>`;
+  }
+
+  rows += `
+    <div class="modal-row">
+      <span class="modal-row-icon">🕐</span>
+      <span class="modal-row-val" style="font-size:12px;line-height:1.8">${hours}</span>
+    </div>`;
+
+  if (p.url) rows += `
+    <div class="modal-row">
+      <span class="modal-row-icon">🗺</span>
+      <a href="${p.url}" target="_blank" class="modal-row-val" style="color:var(--blue)">在 Google Maps 查看 →</a>
+    </div>`;
+
+  if (p.website) rows += `
+    <div class="modal-row">
+      <span class="modal-row-icon">🌐</span>
+      <a href="${p.website}" target="_blank" class="modal-row-val" style="color:var(--blue)">${p.website.replace(/^https?:\/\//,'').split('/')[0]}</a>
+    </div>`;
+
+  document.getElementById('mRows').innerHTML = rows;
+  document.getElementById('modal').classList.add('open');
+}
+
+async function fetchModalAiReason(p) {
+  const box = document.getElementById('mAiBox');
+  const txt = document.getElementById('mAiText');
+  box.classList.add('visible');
+  txt.innerHTML = '<span style="color:var(--text3)">AI 分析中...</span>';
+
+  const prompt = `你是台灣在地美食推薦專家。根據以下店家資訊，寫出詳細推薦理由（繁體中文，60-80字），說明為何值得去、適合什麼情境、有什麼特色。語氣要有溫度、具體，讓人讀完就想去。
+店名：${p.name}
+評分：${p.rating}（${p.user_ratings_total}則評論）
+類型：${(p.types||[]).slice(0,3).join('、')}
+地址：${p.formatted_address||''}
+直接輸出推薦理由，不要加任何前綴。`;
+
+  try {
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, maxTokens: 200 })
+    });
+    const data = await res.json();
+    const text = data.text || '';
+    txt.innerHTML = text || '<span style="color:var(--text3)">暫無 AI 分析</span>';
+  } catch {
+    txt.innerHTML = '<span style="color:var(--text3)">AI 分析暫時無法使用</span>';
+  }
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function onModalOverlayClick(e) { if (e.target===document.getElementById('modal')) closeModal(); }
+function navToPlace() {
+  const addr = document.getElementById('mNavBtn').getAttribute('data-addr');
+  const enc = encodeURIComponent(addr);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  window.open(isIOS ? 'maps://maps.apple.com/?q='+enc : 'https://www.google.com/maps/search/?api=1&query='+enc, '_blank');
+}
+
+/* ══════════════════════════════════════
+   FAVORITES
+══════════════════════════════════════ */
+function saveFavs() { localStorage.setItem('fr_favs2', JSON.stringify(S.favs)); }
+
+function quickFav(id, name, rating, addr) {
+  const idx = S.favs.findIndex(f => f.id===id);
+  const btn = document.getElementById('cfav-'+id);
+  if (idx>=0) {
+    S.favs.splice(idx,1);
+    if(btn) btn.textContent='🤍';
+    toast('已移除收藏');
+  } else {
+    S.favs.push({id, name, rating, addr, cat:S.category});
+    if(btn) btn.textContent='❤️';
+    toast('✓ 已加入收藏');
+  }
+  saveFavs();
+  updateFavCount();
+  if (S.currentPlace?.place_id===id)
+    document.getElementById('mFavBtn').textContent = idx>=0?'🤍':'❤️';
+}
+
+function toggleModalFav() {
+  if (!S.currentPlace) return;
+  quickFav(S.currentPlace.place_id, S.currentPlace.name,
+    S.currentPlace.rating, S.currentPlace.formatted_address||'');
+}
+
+function updateFavCount() {
+  const n = S.favs.length;
+  document.getElementById('bnavFavIcon').textContent = n>0 ? '❤️':'🤍';
+}
+
+function openFav() {
   renderFavList();
   document.getElementById('favPanel').classList.add('open');
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('bnav-fav').classList.add('active');
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('bnavFav').classList.add('on');
 }
-function closeFavPanel() {
+function closeFav() {
   document.getElementById('favPanel').classList.remove('open');
-  document.getElementById('bnav-home').classList.add('active');
-  document.getElementById('bnav-fav').classList.remove('active');
+  document.getElementById('bnavExplore').classList.add('on');
+  document.getElementById('bnavFav').classList.remove('on');
+}
+function bnavHome() {
+  closeFav();
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('bnavExplore').classList.add('on');
+}
+function deskNav(tab, el) {
+  document.querySelectorAll('.desktop-nav-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
 }
 
 function renderFavList() {
-  const list = document.getElementById('favList');
-  if (favorites.length === 0) {
-    list.innerHTML = '<div class="fav-empty"><div style="font-size:40px;margin-bottom:12px">🤍</div><div style="font-size:15px;color:var(--text2);margin-bottom:6px">還沒有收藏</div><div style="font-size:13px">點卡片右下角愛心即可收藏</div></div>';
-    return;
+  const body = document.getElementById('favBody');
+  if (!S.favs.length) {
+    body.innerHTML=`<div class="fav-empty">
+      <div class="fav-empty-icon">🤍</div>
+      <div class="state-title">還沒有收藏</div>
+      <div class="state-sub" style="margin-top:6px">點卡片右下角愛心即可收藏</div>
+    </div>`; return;
   }
-  const typeEmoji = { restaurant:'🍽', cafe:'☕', bar:'🥃', bakery:'🥐' };
-  list.innerHTML = favorites.map((f, i) => `
-    <div class="rest-card" style="margin-bottom:10px" onclick="openDetailById('${f.id}')">
-      <div class="card-inner">
-        <div class="card-img-wrap">
-          <div class="card-img-placeholder">${typeEmoji[f.type] || '🍽'}</div>
-          <div class="rank-badge">#${i + 1}</div>
+  body.innerHTML = S.favs.map((f,i)=>`
+    <div class="r-card fade-up" style="margin-bottom:10px" onclick="openDetailById('${f.id}')">
+      <div class="r-card-inner">
+        <div class="r-card-img">
+          <div class="r-card-emoji">${CAT[f.cat]?.emoji||'🍽'}</div>
+          <div class="r-card-rank">#${i+1}</div>
         </div>
-        <div class="card-body">
-          <div class="card-top">
-            <div>
-              <div class="card-name">${f.name}</div>
-              <div class="card-type">${f.address || ''}</div>
+        <div class="r-card-body">
+          <div class="r-card-top">
+            <div style="min-width:0">
+              <div class="r-card-name">${f.name}</div>
+              <div class="r-card-type">${f.addr||''}</div>
             </div>
-            <div class="score-wrap">
-              <div class="stars">${renderStars(f.rating || 0)}</div>
-              <div class="score-num" style="color:var(--pink)">❤️</div>
+            <div class="r-score-wrap">
+              <div class="r-score" style="color:var(--pink);font-size:22px">❤️</div>
             </div>
           </div>
-          <div class="card-meta" style="margin-top:8px">
-            <div class="meta-item">⭐ ${f.rating || '—'}</div>
-            <button class="card-fav-btn" onclick="event.stopPropagation();removeFav(${i})" style="margin-left:auto;font-size:13px;color:var(--text3)">移除</button>
+          <div class="r-card-meta" style="margin-top:8px">
+            <div class="r-meta-item">⭐ ${f.rating||'—'}</div>
+            <button class="r-fav-btn" style="margin-left:auto;font-size:12px;color:var(--text3)"
+              onclick="event.stopPropagation();removeFav(${i})">移除</button>
           </div>
         </div>
       </div>
     </div>`).join('');
 }
 
+function removeFav(i) {
+  S.favs.splice(i,1); saveFavs(); updateFavCount(); renderFavList();
+}
+
 function openDetailById(placeId) {
-  if (!placesService) { showToast('地圖尚未載入'); return; }
-  placesService.getDetails({
+  if (!S.placeSvc) { toast('地圖尚未載入'); return; }
+  S.placeSvc.getDetails({
     placeId,
-    fields: ['name', 'rating', 'user_ratings_total', 'formatted_address', 'formatted_phone_number', 'website', 'opening_hours', 'url', 'price_level', 'types', 'place_id'],
-    language: 'zh-TW'
+    fields:['name','rating','user_ratings_total','formatted_address',
+            'formatted_phone_number','website','opening_hours','url',
+            'price_level','types','place_id'],
+    language:'zh-TW'
   }, (place, status) => {
-    if (status !== google.maps.places.PlacesServiceStatus.OK) { showToast('無法取得詳細資訊'); return; }
-    // Close fav panel first, then open modal
-    closeFavPanel();
-    setTimeout(() => openDetailFromPlace(place), 300);
+    if (status!==google.maps.places.PlacesServiceStatus.OK) { toast('無法取得詳細資訊'); return; }
+    S.currentPlace = place;
+    closeFav();
+    setTimeout(()=>renderModal(place), 320);
+    fetchModalAiReason(place);
   });
 }
 
-function removeFav(i) {
-  favorites.splice(i, 1);
-  localStorage.setItem('fr_favs', JSON.stringify(favorites));
-  renderFavList();
+/* ══════════════════════════════════════
+   SEARCH & FILTERS
+══════════════════════════════════════ */
+function doSearch() {
+  const q = document.getElementById('searchTA').value.trim();
+  if (q) saveRecent(q);
+  fetchPlaces(q);
 }
 
-// ── RECENT SEARCHES ──
-let recentSearches = JSON.parse(localStorage.getItem('fr_recent') || '[]');
+function qs(text) {
+  document.getElementById('searchTA').value = text;
+  doSearch();
+}
 
+function onSearchInput() {
+  // clear button handled by browser, nothing needed
+}
+
+function setSort(el) {
+  document.querySelectorAll('.sort-pill').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  S.sort = el.getAttribute('data-sort');
+  if (S.places.length) renderCards(S.places, '');
+}
+
+function setCat(el) {
+  document.querySelectorAll('.cat-pill').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  S.category = el.getAttribute('data-cat');
+  fetchPlaces();
+}
+
+function onRadiusChange() {
+  S.radius = parseInt(document.getElementById('radiusSel').value);
+  fetchPlaces();
+}
+
+/* ══════════════════════════════════════
+   RECENT SEARCHES
+══════════════════════════════════════ */
 function saveRecent(q) {
-  if (!q) return;
-  recentSearches = [q, ...recentSearches.filter(r => r !== q)].slice(0, 6);
-  localStorage.setItem('fr_recent', JSON.stringify(recentSearches));
+  S.recent = [q, ...S.recent.filter(r=>r!==q)].slice(0,6);
+  localStorage.setItem('fr_recent2', JSON.stringify(S.recent));
   renderRecent();
 }
 
 function renderRecent() {
-  const wrap = document.getElementById('recentWrap');
+  const sec = document.getElementById('recentSec');
   const tags = document.getElementById('recentTags');
-  if (recentSearches.length === 0) { wrap.style.display = 'none'; return; }
-  wrap.style.display = 'block';
-  tags.innerHTML = recentSearches.map(r => `
-    <button class="recent-tag" onclick="fillSearch('${r}')">
-      🕐 ${r} <span class="recent-x" onclick="removeRecent(event,'${r}')">✕</span>
+  if (!S.recent.length) { sec.style.display='none'; return; }
+  sec.style.display='block';
+  tags.innerHTML = S.recent.map(r=>`
+    <button class="recent-tag" onclick="qs('${r}')">
+      🕐 ${r}
+      <span class="recent-tag-x" onclick="event.stopPropagation();removeRecent('${r}')">✕</span>
     </button>`).join('');
 }
 
-function removeRecent(e, r) {
-  e.stopPropagation();
-  recentSearches = recentSearches.filter(x => x !== r);
-  localStorage.setItem('fr_recent', JSON.stringify(recentSearches));
+function removeRecent(r) {
+  S.recent = S.recent.filter(x=>x!==r);
+  localStorage.setItem('fr_recent2', JSON.stringify(S.recent));
   renderRecent();
 }
 
-// ── CLEAR SEARCH ──
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('clearBtn').style.display = 'none';
-  document.getElementById('aiCard').style.display = 'none';
-  fetchNearby(currentCategory);
-}
-function toggleClear() {
-  const val = document.getElementById('searchInput').value;
-  document.getElementById('clearBtn').style.display = val ? 'block' : 'none';
-}
-
-// ── BOTTOM NAV ──
-function bnavSwitch(tab, el) {
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-}
-
-// ── QUICK FAV FROM CARD ──
-function quickFav(placeId, name, rating, address) {
-  const idx = favorites.findIndex(f => f.id === placeId);
-  const btn = document.getElementById('cfav-' + placeId);
-  if (idx >= 0) {
-    favorites.splice(idx, 1);
-    if (btn) btn.textContent = '🤍';
-    showToast('已移除收藏');
-  } else {
-    favorites.push({ id: placeId, name, type: currentCategory, rating, address });
-    if (btn) btn.textContent = '❤️';
-    showToast('✓ 已加入收藏');
-  }
-  localStorage.setItem('fr_favs', JSON.stringify(favorites));
-  // Also update modal favBtn if same place is open
-  if (currentPlaceDetail?.place_id === placeId) {
-    document.getElementById('favBtn').textContent = idx >= 0 ? '🤍' : '❤️';
+/* ══════════════════════════════════════
+   UI HELPERS
+══════════════════════════════════════ */
+function setLoading(on) {
+  S.loading = on;
+  const btn = document.getElementById('searchGoBtn');
+  btn.disabled = on;
+  document.getElementById('searchGoArrow').textContent = on ? '...' : '→';
+  if (on) {
+    document.getElementById('cardList').innerHTML=`
+      <div class="state-box">
+        <div class="spinner"></div>
+        <div class="state-title">搜尋附近店家中...</div>
+      </div>`;
+    document.getElementById('resultCount').textContent = '0';
   }
 }
 
-// ── NAVIGATE ──
-function navigateTo(address) {
-  const encoded = encodeURIComponent(address);
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const url = isIOS
-    ? 'maps://maps.apple.com/?q=' + encoded
-    : 'https://www.google.com/maps/search/?api=1&query=' + encoded;
-  window.open(url, '_blank');
+function showEmpty(title, sub) {
+  document.getElementById('cardList').innerHTML=`
+    <div class="state-box">
+      <div class="state-icon">🔍</div>
+      <div class="state-title">${title}</div>
+      <div class="state-sub">${sub}</div>
+    </div>`;
+  document.getElementById('resultCount').textContent = '0';
 }
 
-// ── INIT ──
-loadGoogleMaps();
-renderRecent();
+let _toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>el.classList.remove('show'), 2800);
+}
 
-// Fix iOS input zoom reset
-document.querySelectorAll('input, textarea').forEach(el => {
-  el.addEventListener('blur', () => {
-    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-      document.body.style.zoom = 1;
-      window.scrollTo(0, window.scrollY);
-    }
+// iOS input zoom fix
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('input,textarea').forEach(el=>{
+    el.addEventListener('blur', ()=>{
+      if (/iPhone|iPad|iPod/.test(navigator.userAgent)) window.scrollTo(0, window.scrollY);
+    });
   });
 });
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+(function() {
+  const saved = localStorage.getItem('fr_key2');
+  if (saved) {
+    document.getElementById('setupKey').value = saved;
+    S.apiKey = saved;
+    showPage('page-main');
+    loadSDK();
+  }
+  updateFavCount();
+})();
 </script>
 </body>
 </html>
