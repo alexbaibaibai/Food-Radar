@@ -1096,6 +1096,23 @@ function renderCards(places, keyword) {
 
 }
 
+// ── TODAY HOURS ──
+function todayHoursHTML(p) {
+  try {
+    const periods = p.opening_hours?.periods;
+    if (!periods) return '';
+    const day = new Date().getDay();
+    const period = periods.find(pd => pd.open?.day === day);
+    if (!period) return '<div class="today-hours">今日公休</div>';
+    const open = period.open?.time || '';
+    const close = period.close?.time || '';
+    const fmt = t => t ? t.slice(0,2)+':'+t.slice(2) : '';
+    const closeHour = parseInt(close.slice(0,2));
+    const nowHour = new Date().getHours();
+    const closingSoon = closeHour > 0 && closeHour - nowHour <= 1 && closeHour > nowHour;
+    return `<div class="today-hours">🕐 今日 ${fmt(open)}–${fmt(close)} ${closingSoon ? '<span class="closing-soon">即將打烊</span>' : ''}</div>`;
+  } catch { return ''; }
+}
 function cardHTML(p, i) {
   const sc = score(p);
   const rt = p.rating || 0;
@@ -1358,6 +1375,48 @@ function openDetailById(placeId) {
 /* ══════════════════════════════════════
    SEARCH & FILTERS
 ══════════════════════════════════════ */
+
+
+
+// ── PRICE FILTER ──
+function setPrice(el) {
+  document.querySelectorAll('.price-pill').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  S.price = el.getAttribute('data-price');
+  if (S.places.length) renderCards(S.places, '');
+}
+
+// ── EXPAND RADIUS ──
+function expandRadius() {
+  S.radius = Math.min(S.radius * 2, 3000);
+  document.getElementById('radiusSel').value = S.radius;
+  fetchPlaces();
+}
+
+// ── LOAD MORE ──
+function loadMore() {
+  if (!S.nextPage) return;
+  const btn = document.getElementById('loadMoreBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '載入中...'; }
+  S.nextPage.nextPage();
+}
+
+// ── SHARE PLACE ──
+async function sharePlace() {
+  if (!S.currentPlace) return;
+  const p = S.currentPlace;
+  const text = `📍 ${p.name}\n⭐ ${p.rating} 分（${p.user_ratings_total} 則評論）\n${p.formatted_address || ''}\n\n透過美食雷達發現`;
+  const url = p.url || 'https://food-radar-swart.vercel.app';
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: p.name, text, url });
+    } else {
+      await navigator.clipboard.writeText(text + '\n' + url);
+      toast('✓ 已複製店家資訊');
+    }
+  } catch { toast('✓ 已複製店家資訊'); }
+}
+
 function doSearch() {
   const q = document.getElementById('searchTA').value.trim();
   if (q) saveRecent(q);
@@ -1444,7 +1503,7 @@ function showEmpty(title, sub) {
       <div class="state-title">${title}</div>
       <div class="state-sub">${sub}</div>
     </div>`;
-  document.getElementById('resultCount').textContent = '0';
+  document.getElementById('resultCount').textContent = '0';F
 }
 
 let _toastTimer;
