@@ -861,7 +861,7 @@ function showPage(id) {
 ══════════════════════════════════════ */
 function loadSDK() {
   const s = document.createElement('script');
-  s.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_KEY_HERE&libraries=places&language=zh-TW&callback=onSDKReady`;
+  s.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAQ0QASgyiJ_jLUCi9wCb3E4ADonC3FGys&libraries=places&language=zh-TW&callback=onSDKReady`;
   s.async = true;
   s.onerror = () => toast('❌ API Key 無效');
   document.head.appendChild(s);
