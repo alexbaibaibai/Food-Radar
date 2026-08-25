@@ -861,7 +861,7 @@ function showPage(id) {
 ══════════════════════════════════════ */
 function loadSDK() {
   const s = document.createElement('script');
-  s.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDpCBAVT93wWu85aTT57ANiLtgzxaQNY2A&libraries=places&language=zh-TW&callback=onSDKReady`;
+  s.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_KEY_HERE&libraries=places&language=zh-TW&callback=onSDKReady`;
   s.async = true;
   s.onerror = () => toast('❌ API Key 無效');
   document.head.appendChild(s);
@@ -976,6 +976,7 @@ function setLocLabel(t) {
 function searchByAddr() {
   const addr = document.getElementById('locInput').value.trim();
   if (!addr) { toast('請輸入地址或地標'); return; }
+  document.getElementById('locInput').blur();
   const gc = new google.maps.Geocoder();
   gc.geocode({ address:addr, language:'zh-TW' }, (res, st) => {
     if (st==='OK' && res[0]) {
@@ -1019,6 +1020,10 @@ function handleResults(keyword, results, status, pagination) {
     S.nextPage = pagination?.hasNextPage ? pagination : null;
     renderCards(results, keyword);
     updateMarkers(results);
+    if (!keyword) {
+      const el = document.querySelector('.results-count');
+      if (el) el.innerHTML = '為你推薦附近 <strong id="resultCount">' + results.length + '</strong> 間熱門店家';
+    }
   } else if (status === 'ZERO_RESULTS') {
     showEmpty('沒有找到店家', keyword ? `找不到「${keyword}」相關結果，試試其他關鍵字` : '試試擴大搜尋範圍');
   } else {
@@ -1179,6 +1184,7 @@ function buildBadges(p) {
 ══════════════════════════════════════ */
 function openDetail(placeId) {
   if (!S.placeSvc) return;
+  S._scrollY = window.scrollY;
   S.placeSvc.getDetails({
     placeId,
     fields:['name','rating','user_ratings_total','formatted_address',
@@ -1252,7 +1258,10 @@ function renderModal(p) {
 }
 
 
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  setTimeout(() => window.scrollTo({ top: S._scrollY || 0, behavior: 'instant' }), 50);
+}
 function onModalOverlayClick(e) { if (e.target===document.getElementById('modal')) closeModal(); }
 function navToPlace() {
   const addr = document.getElementById('mNavBtn').getAttribute('data-addr');
@@ -1293,6 +1302,8 @@ function toggleModalFav() {
 function updateFavCount() {
   const n = S.favs.length;
   document.getElementById('bnavFavIcon').textContent = n>0 ? '❤️':'🤍';
+  const badge = document.getElementById('favBadge');
+  if (badge) { badge.textContent = n>0 ? n : ''; badge.style.display = n>0 ? 'flex':'none'; }
 }
 
 function openFav() {
@@ -1319,37 +1330,21 @@ function deskNav(tab, el) {
 function renderFavList() {
   const body = document.getElementById('favBody');
   if (!S.favs.length) {
-    body.innerHTML=`<div class="fav-empty">
-      <div class="fav-empty-icon">🤍</div>
-      <div class="state-title">還沒有收藏</div>
-      <div class="state-sub" style="margin-top:6px">點卡片右下角愛心即可收藏</div>
-    </div>`; return;
+    body.innerHTML=`<div class="fav-empty"><div class="fav-empty-icon">🤍</div><div class="state-title">還沒有收藏</div><div class="state-sub" style="margin-top:6px">點卡片右下角愛心即可收藏</div></div>`;
+    return;
   }
-  body.innerHTML = S.favs.map((f,i)=>`
-    <div class="r-card fade-up" style="margin-bottom:10px" onclick="openDetailById('${f.id}')">
-      <div class="r-card-inner">
-        <div class="r-card-img">
-          <div class="r-card-emoji">${CAT[f.cat]?.emoji||'🍽'}</div>
-          <div class="r-card-rank">#${i+1}</div>
-        </div>
-        <div class="r-card-body">
-          <div class="r-card-top">
-            <div style="min-width:0">
-              <div class="r-card-name">${f.name}</div>
-              <div class="r-card-type">${f.addr||''}</div>
-            </div>
-            <div class="r-score-wrap">
-              <div class="r-score" style="color:var(--pink);font-size:22px">❤️</div>
-            </div>
-          </div>
-          <div class="r-card-meta" style="margin-top:8px">
-            <div class="r-meta-item">⭐ ${f.rating||'—'}</div>
-            <button class="r-fav-btn" style="margin-left:auto;font-size:12px;color:var(--text3)"
-              onclick="event.stopPropagation();removeFav(${i})">移除</button>
-          </div>
-        </div>
-      </div>
-    </div>`).join('');
+  const groups = {};
+  S.favs.forEach((f,i) => { const c=f.cat||'restaurant'; if(!groups[c]) groups[c]=[]; groups[c].push({...f,_idx:i}); });
+  let html = '';
+  Object.entries(groups).forEach(([cat,items]) => {
+    const info = CAT[cat]||{label:'其他',emoji:'🍽'};
+    html += `<div style="margin-bottom:20px"><div style="font-size:12px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px;">${info.emoji} ${info.label} <span style="background:var(--bg3);padding:1px 7px;border-radius:99px;">${items.length}</span></div>`;
+    items.forEach((f,i) => {
+      html += `<div class="r-card fade-up" style="margin-bottom:8px" onclick="openDetailById('${f.id}')"><div class="r-card-inner"><div class="r-card-img"><div class="r-card-emoji">${info.emoji}</div><div class="r-card-rank">#${i+1}</div></div><div class="r-card-body"><div class="r-card-top"><div style="min-width:0"><div class="r-card-name">${f.name}</div><div class="r-card-type">${f.addr||''}</div></div><div class="r-score-wrap"><div class="r-score" style="color:var(--pink);font-size:22px">❤️</div></div></div><div class="r-card-meta" style="margin-top:8px"><div class="r-meta-item">⭐ ${f.rating||'—'}</div><button class="r-fav-btn" style="margin-left:auto;font-size:12px;color:var(--text3)" onclick="event.stopPropagation();removeFav(${f._idx})">移除</button></div></div></div></div>`;
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
 }
 
 function removeFav(i) {
@@ -1420,6 +1415,8 @@ async function sharePlace() {
 function doSearch() {
   const q = document.getElementById('searchTA').value.trim();
   if (q) saveRecent(q);
+  document.getElementById('searchTA').blur();
+  document.getElementById('locInput').blur();
   fetchPlaces(q);
 }
 
